@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Family Hub
 
-## Getting Started
+A family management app for tracking expenses, tasks, appointments, baby logs, shopping lists, and notes. Built with Next.js 16, Supabase, and shadcn/ui.
 
-First, run the development server:
+## Getting started
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+### 1. Create a Supabase project
+
+1. Go to [supabase.com](https://supabase.com) and create a new project.
+2. Once created, go to **Project Settings → API** and copy:
+   - **Project URL** (`NEXT_PUBLIC_SUPABASE_URL`)
+   - **anon / public key** (`NEXT_PUBLIC_SUPABASE_ANON_KEY`)
+
+### 2. Set up environment variables
+
+Edit `.env.local` and fill in your values:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Run the database schema
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. In your Supabase project, go to **SQL Editor**.
+2. Open `supabase/schema.sql` from this repo.
+3. Paste the full contents and click **Run**.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This creates all tables with Row-Level Security enabled so each family can only see their own data.
 
-## Learn More
+### 4. Enable email auth
 
-To learn more about Next.js, take a look at the following resources:
+In Supabase, go to **Authentication → Providers** and make sure **Email** is enabled. For local development, you can disable email confirmation in **Authentication → Email Templates → Confirm signup** (toggle "Enable email confirmations" off).
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 5. Run the app
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm install
+npm run dev
+```
 
-## Deploy on Vercel
+Open [http://localhost:3000](http://localhost:3000) and register your account.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### 6. Invite your partner
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+After registering, your partner can go to `/register`, create an account, and then (feature: you can share your `family_id` from the database for them to join). A full invite-by-email flow can be added in a future iteration using Supabase's invite user API.
+
+## Tech stack
+
+- **Next.js 16** (App Router, Server Components, Server Actions)
+- **Supabase** (PostgreSQL + Auth + Row-Level Security)
+- **Tailwind CSS** + **shadcn/ui** (base-ui v4)
+- **TypeScript**
+- **date-fns** for date formatting
+- **lucide-react** for icons
+
+## Features
+
+| Module | Description |
+|--------|-------------|
+| Dashboard | Overview of all modules at a glance |
+| Expenses | Track income and expenses by category with monthly summary |
+| Tasks | Household chores with priority, due date, and recurrence |
+| Calendar | Monthly calendar view with upcoming appointments |
+| Baby | Log feeds, sleep, diaper changes, and milestones |
+| Shopping | Multiple lists with real-time item check-off |
+| Notes | Tagged notes with search and full-text editing |
