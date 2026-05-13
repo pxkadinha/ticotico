@@ -129,7 +129,7 @@ export default async function DashboardPage() {
 
   if (!member?.family_id) {
     return (
-      <div className="text-center py-20 text-gray-500">
+      <div className="text-center py-20 text-muted-foreground">
         <p>No family found. Please register to create one.</p>
       </div>
     );
@@ -139,13 +139,13 @@ export default async function DashboardPage() {
   const firstName = member.display_name?.split(" ")[0] ?? "there";
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
+    <div className="max-w-6xl mx-auto space-y-8 pt-4 md:pt-6">
       {/* Greeting */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-foreground">
           Good {getGreeting()}, {firstName} 👋
         </h1>
-        <p className="text-gray-500 mt-1">
+        <p className="text-muted-foreground mt-1">
           {format(new Date(), "EEEE, MMMM d")} — here&apos;s your family overview
         </p>
       </div>
@@ -156,32 +156,32 @@ export default async function DashboardPage() {
           title="Monthly income"
           value={`€${data.totalIncome.toFixed(2)}`}
           icon={TrendingUp}
-          color="text-emerald-600"
-          bg="bg-emerald-50"
+          iconClass="text-emerald-500"
+          bgClass="bg-emerald-500/10"
           href="/expenses"
         />
         <StatCard
           title="Monthly expenses"
           value={`€${data.totalExpenses.toFixed(2)}`}
           icon={TrendingDown}
-          color="text-red-500"
-          bg="bg-red-50"
+          iconClass="text-red-500"
+          bgClass="bg-red-500/10"
           href="/expenses"
         />
         <StatCard
           title="Pending tasks"
           value={String(data.tasks.length)}
           icon={CheckSquare}
-          color="text-blue-600"
-          bg="bg-blue-50"
+          iconClass="text-blue-500"
+          bgClass="bg-blue-500/10"
           href="/tasks"
         />
         <StatCard
           title="Upcoming events"
           value={String(data.appointments.length)}
           icon={CalendarDays}
-          color="text-purple-600"
-          bg="bg-purple-50"
+          iconClass="text-purple-500"
+          bgClass="bg-purple-500/10"
           href="/calendar"
         />
       </div>
@@ -189,252 +189,234 @@ export default async function DashboardPage() {
       {/* Main grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
         {/* Tasks */}
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <CheckSquare className="w-4 h-4 text-blue-500" />
-                Tasks
-              </CardTitle>
-              <Link
-                href="/tasks"
-                className="text-xs text-rose-500 hover:underline"
-              >
-                View all
-              </Link>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {data.tasks.length === 0 ? (
-              <p className="text-sm text-gray-400 py-2">All done! 🎉</p>
-            ) : (
-              data.tasks.slice(0, 4).map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-start gap-2 py-1.5 border-b border-gray-50 last:border-0"
-                >
-                  <span
-                    className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${
-                      task.priority === "high"
-                        ? "bg-red-400"
-                        : task.priority === "medium"
-                        ? "bg-amber-400"
-                        : "bg-gray-300"
-                    }`}
-                  />
-                  <div className="min-w-0">
-                    <p className="text-sm text-gray-700 truncate">{task.title}</p>
-                    {task.due_date && (
-                      <p className="text-xs text-gray-400 flex items-center gap-1 mt-0.5">
-                        <Clock className="w-3 h-3" />
-                        {format(new Date(task.due_date), "MMM d")}
-                      </p>
-                    )}
+        <Link href="/tasks" className="group block">
+          <Card className="border-0 shadow-sm group-hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <CheckSquare className="w-4 h-4 text-blue-500" />
+                  Tasks
+                </CardTitle>
+                <span className="text-xs text-rose-500 group-hover:underline">View all</span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {data.tasks.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-2">All done! 🎉</p>
+              ) : (
+                data.tasks.slice(0, 4).map((task) => (
+                  <div
+                    key={task.id}
+                    className="flex items-start gap-2 py-1.5 border-b border-border last:border-0"
+                  >
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0 ${
+                        task.priority === "high"
+                          ? "bg-red-400"
+                          : task.priority === "medium"
+                          ? "bg-amber-400"
+                          : "bg-muted-foreground"
+                      }`}
+                    />
+                    <div className="min-w-0">
+                      <p className="text-sm text-foreground truncate">{task.title}</p>
+                      {task.due_date && (
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                          <Clock className="w-3 h-3" />
+                          {format(new Date(task.due_date), "MMM d")}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </Link>
 
         {/* Appointments */}
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <CalendarDays className="w-4 h-4 text-purple-500" />
-                Upcoming
-              </CardTitle>
-              <Link
-                href="/calendar"
-                className="text-xs text-rose-500 hover:underline"
-              >
-                View all
-              </Link>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {data.appointments.length === 0 ? (
-              <p className="text-sm text-gray-400 py-2">No upcoming events</p>
-            ) : (
-              data.appointments.slice(0, 4).map((appt) => (
-                <div
-                  key={appt.id}
-                  className="flex items-start gap-3 py-1.5 border-b border-gray-50 last:border-0"
-                >
-                  <div className="w-8 h-8 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <CalendarDays className="w-4 h-4 text-purple-500" />
+        <Link href="/calendar" className="group block">
+          <Card className="border-0 shadow-sm group-hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <CalendarDays className="w-4 h-4 text-purple-500" />
+                  Upcoming
+                </CardTitle>
+                <span className="text-xs text-rose-500 group-hover:underline">View all</span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {data.appointments.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-2">No upcoming events</p>
+              ) : (
+                data.appointments.slice(0, 4).map((appt) => (
+                  <div
+                    key={appt.id}
+                    className="flex items-start gap-3 py-1.5 border-b border-border last:border-0"
+                  >
+                    <div className="w-8 h-8 bg-purple-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <CalendarDays className="w-4 h-4 text-purple-500" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm text-foreground truncate font-medium">
+                        {appt.title}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {formatAppointmentDate(appt.start_time)}
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <p className="text-sm text-gray-700 truncate font-medium">
-                      {appt.title}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      {formatAppointmentDate(appt.start_time)}
-                    </p>
-                  </div>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </Link>
 
         {/* Baby logs */}
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <Baby className="w-4 h-4 text-pink-500" />
-                Baby
-              </CardTitle>
-              <Link
-                href="/baby"
-                className="text-xs text-rose-500 hover:underline"
-              >
-                View all
-              </Link>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {data.babyLogs.length === 0 ? (
-              <p className="text-sm text-gray-400 py-2">No logs yet</p>
-            ) : (
-              data.babyLogs.map((log) => (
-                <div
-                  key={log.id}
-                  className="flex items-center gap-3 py-1.5 border-b border-gray-50 last:border-0"
-                >
-                  <Badge
-                    variant="secondary"
-                    className="text-xs capitalize bg-pink-50 text-pink-600 border-0"
+        <Link href="/baby" className="group block">
+          <Card className="border-0 shadow-sm group-hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <Baby className="w-4 h-4 text-pink-500" />
+                  Baby
+                </CardTitle>
+                <span className="text-xs text-rose-500 group-hover:underline">View all</span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {data.babyLogs.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-2">No logs yet</p>
+              ) : (
+                data.babyLogs.map((log) => (
+                  <div
+                    key={log.id}
+                    className="flex items-center gap-3 py-1.5 border-b border-border last:border-0"
                   >
-                    {formatBabyLogType(log.type)}
-                  </Badge>
-                  <p className="text-xs text-gray-400 ml-auto">
-                    {format(new Date(log.timestamp), "HH:mm")}
-                  </p>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+                    <Badge
+                      variant="secondary"
+                      className="text-xs capitalize bg-pink-500/10 text-pink-500 border-0"
+                    >
+                      {formatBabyLogType(log.type)}
+                    </Badge>
+                    <p className="text-xs text-muted-foreground ml-auto">
+                      {format(new Date(log.timestamp), "HH:mm")}
+                    </p>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </Link>
 
         {/* Shopping lists */}
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <ShoppingCart className="w-4 h-4 text-orange-500" />
-                Shopping
-              </CardTitle>
-              <Link
-                href="/shopping"
-                className="text-xs text-rose-500 hover:underline"
-              >
-                View all
-              </Link>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {data.shoppingLists.length === 0 ? (
-              <p className="text-sm text-gray-400 py-2">No lists yet</p>
-            ) : (
-              data.shoppingLists.map((list) => {
-                const items = (list.shopping_items as { checked: boolean }[]) ?? [];
-                const done = items.filter((i) => i.checked).length;
-                const total = items.length;
-                return (
-                  <div
-                    key={list.id}
-                    className="flex items-center justify-between py-1.5 border-b border-gray-50 last:border-0"
-                  >
-                    <p className="text-sm text-gray-700">{list.title}</p>
-                    <span className="text-xs text-gray-400">
-                      {done}/{total}
-                    </span>
-                  </div>
-                );
-              })
-            )}
-          </CardContent>
-        </Card>
+        <Link href="/shopping" className="group block">
+          <Card className="border-0 shadow-sm group-hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <ShoppingCart className="w-4 h-4 text-orange-500" />
+                  Shopping
+                </CardTitle>
+                <span className="text-xs text-rose-500 group-hover:underline">View all</span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {data.shoppingLists.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-2">No lists yet</p>
+              ) : (
+                data.shoppingLists.map((list) => {
+                  const items = (list.shopping_items as { checked: boolean }[]) ?? [];
+                  const done = items.filter((i) => i.checked).length;
+                  const total = items.length;
+                  return (
+                    <div
+                      key={list.id}
+                      className="flex items-center justify-between py-1.5 border-b border-border last:border-0"
+                    >
+                      <p className="text-sm text-foreground">{list.title}</p>
+                      <span className="text-xs text-muted-foreground">
+                        {done}/{total}
+                      </span>
+                    </div>
+                  );
+                })
+              )}
+            </CardContent>
+          </Card>
+        </Link>
 
         {/* Notes */}
-        <Card className="border-0 shadow-sm">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base font-semibold flex items-center gap-2">
-                <FileText className="w-4 h-4 text-teal-500" />
-                Notes
-              </CardTitle>
-              <Link
-                href="/notes"
-                className="text-xs text-rose-500 hover:underline"
-              >
-                View all
-              </Link>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {data.notes.length === 0 ? (
-              <p className="text-sm text-gray-400 py-2">No notes yet</p>
-            ) : (
-              data.notes.map((note) => (
-                <div
-                  key={note.id}
-                  className="py-1.5 border-b border-gray-50 last:border-0"
-                >
-                  <p className="text-sm text-gray-700 font-medium truncate">
-                    {note.title}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    {format(new Date(note.updated_at), "MMM d")}
-                  </p>
-                </div>
-              ))
-            )}
-          </CardContent>
-        </Card>
+        <Link href="/notes" className="group block">
+          <Card className="border-0 shadow-sm group-hover:shadow-md transition-shadow cursor-pointer h-full">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-teal-500" />
+                  Notes
+                </CardTitle>
+                <span className="text-xs text-rose-500 group-hover:underline">View all</span>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {data.notes.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-2">No notes yet</p>
+              ) : (
+                data.notes.map((note) => (
+                  <div
+                    key={note.id}
+                    className="py-1.5 border-b border-border last:border-0"
+                  >
+                    <p className="text-sm text-foreground font-medium truncate">
+                      {note.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {format(new Date(note.updated_at), "MMM d")}
+                    </p>
+                  </div>
+                ))
+              )}
+            </CardContent>
+          </Card>
+        </Link>
 
         {/* Balance */}
-        <Card
-          className={`border-0 shadow-sm ${
-            data.balance >= 0 ? "bg-emerald-50" : "bg-red-50"
-          }`}
-        >
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-semibold flex items-center gap-2">
-              <DollarSign
-                className={`w-4 h-4 ${
-                  data.balance >= 0 ? "text-emerald-600" : "text-red-500"
+        <Link href="/expenses" className="group block">
+          <Card className="border-0 shadow-sm group-hover:shadow-md transition-shadow cursor-pointer h-full bg-card">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base font-semibold flex items-center gap-2">
+                <DollarSign
+                  className={`w-4 h-4 ${
+                    data.balance >= 0
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-red-500 dark:text-red-400"
+                  }`}
+                />
+                Monthly balance
+              </CardTitle>
+              <CardDescription>This month so far</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p
+                className={`text-3xl font-bold ${
+                  data.balance >= 0 ? "text-emerald-500" : "text-red-500"
                 }`}
-              />
-              Monthly balance
-            </CardTitle>
-            <CardDescription>This month so far</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p
-              className={`text-3xl font-bold ${
-                data.balance >= 0 ? "text-emerald-700" : "text-red-600"
-              }`}
-            >
-              {data.balance >= 0 ? "+" : ""}€{data.balance.toFixed(2)}
-            </p>
-            {data.balance < 0 && (
-              <div className="flex items-center gap-1 mt-2 text-red-500 text-xs">
-                <AlertCircle className="w-3 h-3" />
-                Expenses exceed income this month
-              </div>
-            )}
-            <Link
-              href="/expenses"
-              className="text-xs text-rose-500 hover:underline mt-3 inline-block"
-            >
-              View details →
-            </Link>
-          </CardContent>
-        </Card>
+              >
+                {data.balance >= 0 ? "+" : ""}€{data.balance.toFixed(2)}
+              </p>
+              {data.balance < 0 && (
+                <div className="flex items-center gap-1 mt-2 text-red-500 text-xs">
+                  <AlertCircle className="w-3 h-3" />
+                  Expenses exceed income this month
+                </div>
+              )}
+              <span className="text-xs text-rose-500 group-hover:underline mt-3 inline-block">
+                View details →
+              </span>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
     </div>
   );
@@ -451,26 +433,26 @@ function StatCard({
   title,
   value,
   icon: Icon,
-  color,
-  bg,
+  iconClass,
+  bgClass,
   href,
 }: {
   title: string;
   value: string;
   icon: React.ComponentType<{ className?: string }>;
-  color: string;
-  bg: string;
+  iconClass: string;
+  bgClass: string;
   href: string;
 }) {
   return (
-    <Link href={href}>
-      <Card className="border-0 shadow-sm hover:shadow-md transition-shadow cursor-pointer">
+    <Link href={href} className="group block">
+      <Card className="border-0 shadow-sm group-hover:shadow-md transition-shadow cursor-pointer">
         <CardContent className="p-4">
-          <div className={`w-9 h-9 ${bg} rounded-xl flex items-center justify-center mb-3`}>
-            <Icon className={`w-5 h-5 ${color}`} />
+          <div className={`w-9 h-9 rounded-xl flex items-center justify-center mb-3 ${bgClass}`}>
+            <Icon className={`w-5 h-5 ${iconClass}`} />
           </div>
-          <p className="text-2xl font-bold text-gray-900">{value}</p>
-          <p className="text-xs text-gray-500 mt-0.5">{title}</p>
+          <p className="text-2xl font-bold text-foreground">{value}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{title}</p>
         </CardContent>
       </Card>
     </Link>

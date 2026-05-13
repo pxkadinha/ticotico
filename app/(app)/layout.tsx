@@ -37,7 +37,7 @@ export default async function AppLayout({
     (member?.families as { name?: string } | null)?.name ?? undefined;
 
   return (
-    <div className="flex h-dvh bg-gray-50 overflow-hidden">
+    <div className="flex h-dvh bg-background overflow-hidden">
       {/* Desktop sidebar — hidden on mobile */}
       <div className="hidden md:flex md:flex-shrink-0">
         <Sidebar

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTheme } from "next-themes";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,8 @@ import {
   LogOut,
   ChevronRight,
   Settings,
+  Sun,
+  Moon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -42,6 +45,7 @@ interface SidebarProps {
 export function Sidebar({ userEmail, displayName, familyName }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { theme, setTheme } = useTheme();
 
   async function handleSignOut() {
     const supabase = createClient();
@@ -60,18 +64,18 @@ export function Sidebar({ userEmail, displayName, familyName }: SidebarProps) {
     : userEmail?.slice(0, 2).toUpperCase() ?? "?";
 
   return (
-    <aside className="w-64 bg-white border-r border-gray-100 flex flex-col h-full">
+    <aside className="w-64 bg-card border-r border-border flex flex-col h-full">
       {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
-        <div className="w-9 h-9 bg-rose-100 rounded-xl flex items-center justify-center flex-shrink-0">
+      <div className="flex items-center gap-3 px-6 py-5 border-b border-border">
+        <div className="w-9 h-9 bg-rose-100 dark:bg-rose-900/40 rounded-xl flex items-center justify-center flex-shrink-0">
           <Heart className="w-5 h-5 text-rose-500" fill="currentColor" />
         </div>
         <div className="min-w-0">
-          <p className="font-bold text-gray-900 text-sm leading-tight">
+          <p className="font-bold text-foreground text-sm leading-tight">
             Family Hub
           </p>
           {familyName && (
-            <p className="text-xs text-gray-400 truncate">{familyName}</p>
+            <p className="text-xs text-muted-foreground truncate">{familyName}</p>
           )}
         </div>
       </div>
@@ -88,14 +92,16 @@ export function Sidebar({ userEmail, displayName, familyName }: SidebarProps) {
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all group",
                 active
-                  ? "bg-rose-50 text-rose-600"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                  ? "bg-rose-500/10 text-rose-500 dark:bg-rose-500/15 dark:text-rose-400"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
             >
               <Icon
                 className={cn(
                   "w-4 h-4 flex-shrink-0 transition-colors",
-                  active ? "text-rose-500" : "text-gray-400 group-hover:text-gray-600"
+                  active
+                    ? "text-rose-500 dark:text-rose-400"
+                    : "text-muted-foreground group-hover:text-foreground"
                 )}
               />
               {label}
@@ -107,26 +113,42 @@ export function Sidebar({ userEmail, displayName, familyName }: SidebarProps) {
         })}
       </nav>
 
-      {/* User */}
-      <div className="px-3 py-4 border-t border-gray-100">
-        <div className="flex items-center gap-3 px-3 py-2 rounded-xl mb-1">
+      {/* User + controls */}
+      <div className="px-3 py-4 border-t border-border space-y-1">
+        {/* Theme toggle */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground px-3"
+        >
+          {theme === "dark" ? (
+            <Sun className="w-4 h-4" />
+          ) : (
+            <Moon className="w-4 h-4" />
+          )}
+          {theme === "dark" ? "Light mode" : "Dark mode"}
+        </Button>
+
+        <div className="flex items-center gap-3 px-3 py-2 rounded-xl">
           <Avatar className="w-8 h-8 flex-shrink-0">
-            <AvatarFallback className="bg-rose-100 text-rose-600 text-xs font-semibold">
+            <AvatarFallback className="bg-rose-100 dark:bg-rose-900/40 text-rose-600 dark:text-rose-400 text-xs font-semibold">
               {initials}
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-gray-900 truncate">
+            <p className="text-sm font-medium text-foreground truncate">
               {displayName ?? "You"}
             </p>
-            <p className="text-xs text-gray-400 truncate">{userEmail}</p>
+            <p className="text-xs text-muted-foreground truncate">{userEmail}</p>
           </div>
         </div>
+
         <Button
           variant="ghost"
           size="sm"
           onClick={handleSignOut}
-          className="w-full justify-start gap-3 text-gray-500 hover:text-red-500 hover:bg-red-50 px-3"
+          className="w-full justify-start gap-3 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 px-3"
         >
           <LogOut className="w-4 h-4" />
           Sign out
