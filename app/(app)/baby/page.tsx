@@ -2,10 +2,9 @@ import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { format, isToday, isYesterday } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Utensils, Moon, Droplet, Star, Clock } from "lucide-react";
+import { Utensils, Moon, Droplet, Star } from "lucide-react";
 import { BabyForm } from "./baby-form";
-import { DeleteBabyLogButton } from "./delete-button";
+import { BabyLogItem } from "./baby-log-item";
 import type { BabyLog } from "@/types";
 import { getT } from "@/lib/i18n/server";
 
@@ -144,25 +143,15 @@ export default async function BabyPage() {
             <div className="space-y-2">
               {allLogs.map((log) => {
                 const config = TYPE_CONFIG[log.type] ?? TYPE_CONFIG.feed;
-                const Icon = config.icon;
                 const detail = getLogDetail(log, t);
                 return (
-                  <div key={log.id} className="flex items-center gap-3 p-4 bg-card rounded-xl border border-border shadow-sm group hover:border-border/80 transition-all">
-                    <div className={`w-9 h-9 ${config.bg} rounded-xl flex items-center justify-center flex-shrink-0`}>
-                      <Icon className={`w-4 h-4 ${config.color}`} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <Badge variant="secondary" className={`text-xs border-0 ${config.bg} ${config.color}`}>{config.label}</Badge>
-                        {detail && <span className="text-sm text-foreground">{detail}</span>}
-                      </div>
-                      {log.notes && <p className="text-xs text-muted-foreground mt-0.5 truncate">{log.notes}</p>}
-                    </div>
-                    <span className="flex items-center gap-1 text-xs text-muted-foreground flex-shrink-0">
-                      <Clock className="w-3 h-3" />{formatLogDate(log.timestamp)}
-                    </span>
-                    <DeleteBabyLogButton id={log.id} />
-                  </div>
+                  <BabyLogItem
+                    key={log.id}
+                    log={log}
+                    label={config.label}
+                    detail={detail}
+                    dateStr={formatLogDate(log.timestamp)}
+                  />
                 );
               })}
             </div>

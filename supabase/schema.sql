@@ -9,8 +9,23 @@
 create table if not exists families (
   id uuid primary key default gen_random_uuid(),
   name text not null,
+  enabled_modules jsonb default '{"expenses":true,"tasks":true,"calendar":true,"chat":true,"baby":true,"shopping":true,"notes":true}'::jsonb,
   created_at timestamptz default now()
 );
+
+-- Allow any family member (not just admin) to update enabled_modules.
+-- Run manually if the table already exists:
+--   ALTER TABLE families ADD COLUMN IF NOT EXISTS enabled_modules jsonb
+--     DEFAULT '{"expenses":true,"tasks":true,"calendar":true,"chat":true,"baby":true,"shopping":true,"notes":true}'::jsonb;
+create or replace function set_family_modules(p_modules jsonb)
+returns void language plpgsql security definer set search_path = public as $$
+declare v_family_id uuid;
+begin
+  v_family_id := get_my_family_id();
+  if v_family_id is null then raise exception 'Not a family member'; end if;
+  update families set enabled_modules = p_modules where id = v_family_id;
+end;
+$$;
 
 create table if not exists family_members (
   id uuid primary key default gen_random_uuid(),
@@ -350,3 +365,31 @@ create policy "Note creators can delete" on notes
 -- ─────────────────────────────────────────
 
 alter publication supabase_realtime add table shopping_items;
+
+-- ─────────────────────────────────────────
+-- PUSH SUBSCRIPTIONS (Web Push notifications)
+-- ─────────────────────────────────────────
+
+create table push_subscriptions (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  family_id uuid not null references families(id) on delete cascade,
+  endpoint text not null,
+  subscription jsonb not null,
+  created_at timestamptz default now(),
+  unique(user_id, endpoint)
+);
+
+alter table push_subscriptions enable row level security;
+
+-- Users can only manage their own subscriptions
+create policy "Users manage own push subscriptions"
+  on push_subscriptions
+  using (user_id = auth.uid())
+  with check (user_id = auth.uid());
+
+-- Family members can read each other's subscriptions (needed for server-side push)
+-- We use a security definer function to avoid recursion
+create policy "Family members can view push subscriptions"
+  on push_subscriptions for select
+  using (family_id = get_my_family_id());

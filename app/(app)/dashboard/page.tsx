@@ -19,6 +19,7 @@ import { getT } from "@/lib/i18n/server";
 import { getLocale } from "@/lib/i18n/server";
 import { getDateFnsLocale } from "@/lib/i18n/date-locale";
 import type { Message } from "@/types";
+import { resolveModules } from "@/types";
 
 async function getDashboardData(familyId: string) {
   const supabase = await createClient();
@@ -113,7 +114,7 @@ export default async function DashboardPage() {
 
   const { data: member } = await supabase
     .from("family_members")
-    .select("family_id, display_name")
+    .select("family_id, display_name, families(enabled_modules)")
     .eq("user_id", user.id)
     .single();
 
@@ -132,6 +133,9 @@ export default async function DashboardPage() {
     getLocale(),
   ]);
   const firstName = member.display_name?.split(" ")[0] ?? "there";
+  const enabledModules = resolveModules(
+    (member.families as { enabled_modules?: unknown } | null)?.enabled_modules
+  );
   const dateFnsLocale = getDateFnsLocale(locale);
   const datePattern = locale === "pt" ? "EEEE, d 'de' MMMM" : "EEEE, d MMMM";
   const formattedDate = format(new Date(), datePattern, { locale: dateFnsLocale });
@@ -148,40 +152,48 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* Top stats row */}
+      {/* Top stats row — hidden per module */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard
-          title={t.dashboard.monthlyIncome}
-          value={`€${data.totalIncome.toFixed(2)}`}
-          icon={TrendingUp}
-          iconClass="text-emerald-500"
-          bgClass="bg-emerald-500/10"
-          href="/expenses"
-        />
-        <StatCard
-          title={t.dashboard.monthlyExpenses}
-          value={`€${data.totalExpenses.toFixed(2)}`}
-          icon={TrendingDown}
-          iconClass="text-red-500"
-          bgClass="bg-red-500/10"
-          href="/expenses"
-        />
-        <StatCard
-          title={t.dashboard.pendingTasks}
-          value={String(data.tasks.length)}
-          icon={CheckSquare}
-          iconClass="text-blue-500"
-          bgClass="bg-blue-500/10"
-          href="/tasks"
-        />
-        <StatCard
-          title={t.dashboard.upcomingEvents}
-          value={String(data.appointments.length)}
-          icon={CalendarDays}
-          iconClass="text-purple-500"
-          bgClass="bg-purple-500/10"
-          href="/calendar"
-        />
+        {enabledModules.expenses && (
+          <>
+            <StatCard
+              title={t.dashboard.monthlyIncome}
+              value={`€${data.totalIncome.toFixed(2)}`}
+              icon={TrendingUp}
+              iconClass="text-emerald-500"
+              bgClass="bg-emerald-500/10"
+              href="/expenses"
+            />
+            <StatCard
+              title={t.dashboard.monthlyExpenses}
+              value={`€${data.totalExpenses.toFixed(2)}`}
+              icon={TrendingDown}
+              iconClass="text-red-500"
+              bgClass="bg-red-500/10"
+              href="/expenses"
+            />
+          </>
+        )}
+        {enabledModules.tasks && (
+          <StatCard
+            title={t.dashboard.pendingTasks}
+            value={String(data.tasks.length)}
+            icon={CheckSquare}
+            iconClass="text-blue-500"
+            bgClass="bg-blue-500/10"
+            href="/tasks"
+          />
+        )}
+        {enabledModules.calendar && (
+          <StatCard
+            title={t.dashboard.upcomingEvents}
+            value={String(data.appointments.length)}
+            icon={CalendarDays}
+            iconClass="text-purple-500"
+            bgClass="bg-purple-500/10"
+            href="/calendar"
+          />
+        )}
       </div>
 
       {/* Main grid — drag to reorder */}
@@ -195,14 +207,17 @@ export default async function DashboardPage() {
         totalIncome={data.totalIncome}
         totalExpenses={data.totalExpenses}
         balance={data.balance}
+        enabledModules={enabledModules}
       />
 
-      {/* Chat widget */}
-      <DashboardChatWidget
-        initialMessages={data.messages}
-        familyId={member.family_id}
-        currentUserId={user.id}
-      />
+      {/* Chat widget — only when chat is enabled */}
+      {enabledModules.chat && (
+        <DashboardChatWidget
+          initialMessages={data.messages}
+          familyId={member.family_id}
+          currentUserId={user.id}
+        />
+      )}
     </div>
   );
 }

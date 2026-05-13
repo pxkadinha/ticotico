@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Copy, Check, RefreshCw, Loader2 } from "lucide-react";
@@ -17,10 +17,12 @@ interface InviteSectionProps {
 export function InviteSection({ familyId, inviteToken, isAdmin }: InviteSectionProps) {
   const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [inviteUrl, setInviteUrl] = useState(`/join?token=${inviteToken}`);
   const { t } = useLanguage();
 
-  const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
-  const inviteUrl = `${baseUrl}/join?token=${inviteToken}`;
+  useEffect(() => {
+    setInviteUrl(`${window.location.origin}/join?token=${inviteToken}`);
+  }, [inviteToken]);
 
   function handleCopy() {
     navigator.clipboard.writeText(inviteUrl);

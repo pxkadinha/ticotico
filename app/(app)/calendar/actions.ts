@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { logActivity } from "@/lib/activity";
+import { notifyFamily } from "@/lib/notifications/push";
 import { format } from "date-fns";
 
 export async function addAppointment(formData: FormData) {
@@ -41,14 +42,27 @@ export async function addAppointment(formData: FormData) {
 
   if (error) throw new Error(error.message);
 
+  const displayName = member.display_name ?? "Someone";
+  const dateLabel = format(new Date(startTime), "d MMM");
   await logActivity({
     supabase,
     familyId: member.family_id,
     userId: user.id,
-    displayName: member.display_name ?? "Someone",
+    displayName,
     icon: "📅",
-    content: `{name} scheduled "${title}" on ${format(new Date(startTime), "d MMM")}`,
+    content: `{name} scheduled "${title}" on ${dateLabel}`,
     action: "appointment_created",
+  });
+
+  await notifyFamily({
+    familyId: member.family_id,
+    senderUserId: user.id,
+    payload: {
+      title: "Family Hub · New appointment 📅",
+      body: `${displayName} scheduled "${title}" on ${dateLabel}`,
+      tag: "calendar",
+      url: "/calendar",
+    },
   });
 
   revalidatePath("/calendar");

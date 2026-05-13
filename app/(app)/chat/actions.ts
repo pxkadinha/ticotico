@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { notifyFamily } from "@/lib/notifications/push";
 
 export async function sendMessage(content: string): Promise<void> {
   const trimmed = content.trim();
@@ -29,5 +30,18 @@ export async function sendMessage(content: string): Promise<void> {
   });
 
   if (error) throw new Error(error.message);
+
+  const senderName = member.display_name ?? user.email?.split("@")[0] ?? "Someone";
+  await notifyFamily({
+    familyId: member.family_id,
+    senderUserId: user.id,
+    payload: {
+      title: `Family Hub · ${senderName}`,
+      body: trimmed,
+      tag: "chat",
+      url: "/chat",
+    },
+  });
+
   revalidatePath("/chat");
 }

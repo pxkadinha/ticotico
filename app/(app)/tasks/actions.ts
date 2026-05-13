@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { logActivity } from "@/lib/activity";
+import { notifyFamily } from "@/lib/notifications/push";
 import type { TaskStatus, TaskPriority, TaskRecurrence } from "@/types";
 
 export async function addTask(formData: FormData) {
@@ -36,16 +37,53 @@ export async function addTask(formData: FormData) {
 
   if (error) throw new Error(error.message);
 
+  const displayName = member.display_name ?? "Someone";
   await logActivity({
     supabase,
     familyId: member.family_id,
     userId: user.id,
-    displayName: member.display_name ?? "Someone",
+    displayName,
     icon: "📝",
     content: `{name} created task "${title}"`,
     action: "task_created",
   });
 
+  await notifyFamily({
+    familyId: member.family_id,
+    senderUserId: user.id,
+    payload: {
+      title: "Family Hub · New task",
+      body: `${displayName} created task "${title}"`,
+      tag: "task",
+      url: "/tasks",
+    },
+  });
+
+  revalidatePath("/tasks");
+  revalidatePath("/dashboard");
+}
+
+export async function updateTask(id: string, formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const dueDate = formData.get("due_date") as string;
+
+  const { error } = await supabase
+    .from("tasks")
+    .update({
+      title: formData.get("title") as string,
+      description: (formData.get("description") as string) || null,
+      priority: (formData.get("priority") as TaskPriority) || "medium",
+      due_date: dueDate || null,
+      recurrence: (formData.get("recurrence") as TaskRecurrence) || "none",
+    })
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
   revalidatePath("/tasks");
   revalidatePath("/dashboard");
 }
@@ -70,14 +108,25 @@ export async function updateTaskStatus(id: string, status: TaskStatus) {
       .single();
 
     if (task && member) {
+      const displayName = member.display_name ?? "Someone";
       await logActivity({
         supabase,
         familyId: task.family_id,
         userId: user.id,
-        displayName: member.display_name ?? "Someone",
+        displayName,
         icon: "✅",
         content: `{name} completed "${task.title}"`,
         action: "task_completed",
+      });
+      await notifyFamily({
+        familyId: task.family_id,
+        senderUserId: user.id,
+        payload: {
+          title: "Family Hub · Task done ✅",
+          body: `${displayName} completed "${task.title}"`,
+          tag: "task",
+          url: "/tasks",
+        },
       });
     }
   }

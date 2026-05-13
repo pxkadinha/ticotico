@@ -3,6 +3,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 import { logActivity } from "@/lib/activity";
+import { notifyFamily } from "@/lib/notifications/push";
 import type { ExpenseCategory, ExpenseType } from "@/types";
 
 export async function addExpense(formData: FormData) {
@@ -35,17 +36,56 @@ export async function addExpense(formData: FormData) {
 
   if (error) throw new Error(error.message);
 
+  const displayName = member.display_name ?? "Someone";
   const label = description ? `"${description}"` : `€${amount.toFixed(2)}`;
+  const icon = type === "income" ? "💰" : "💸";
   await logActivity({
     supabase,
     familyId: member.family_id,
     userId: user.id,
-    displayName: member.display_name ?? "Someone",
-    icon: type === "income" ? "💰" : "💸",
+    displayName,
+    icon,
     content: `{name} added ${type} of ${label}`,
     action: "expense_added",
   });
 
+  await notifyFamily({
+    familyId: member.family_id,
+    senderUserId: user.id,
+    payload: {
+      title: `Family Hub · ${type === "income" ? "Income 💰" : "Expense 💸"}`,
+      body: `${displayName} added ${type} of ${label}`,
+      tag: "expense",
+      url: "/expenses",
+    },
+  });
+
+  revalidatePath("/expenses");
+  revalidatePath("/dashboard");
+}
+
+export async function updateExpense(id: string, formData: FormData) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Unauthorized");
+
+  const amount = parseFloat(formData.get("amount") as string);
+  const type = formData.get("type") as ExpenseType;
+
+  const { error } = await supabase
+    .from("expenses")
+    .update({
+      amount,
+      type,
+      category: formData.get("category") as ExpenseCategory,
+      description: (formData.get("description") as string) || null,
+      date: formData.get("date") as string,
+    })
+    .eq("id", id);
+
+  if (error) throw new Error(error.message);
   revalidatePath("/expenses");
   revalidatePath("/dashboard");
 }

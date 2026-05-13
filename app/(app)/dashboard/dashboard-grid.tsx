@@ -40,10 +40,20 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useLanguage } from "@/components/providers/language-provider";
-import type { Task, Appointment, BabyLog, ShoppingList, Note } from "@/types";
+import type { Task, Appointment, BabyLog, ShoppingList, Note, EnabledModules } from "@/types";
 
-const WIDGET_IDS = ["tasks", "appointments", "baby", "shopping", "notes", "balance"] as const;
-type WidgetId = (typeof WIDGET_IDS)[number];
+const ALL_WIDGET_IDS = ["tasks", "appointments", "baby", "shopping", "notes", "balance"] as const;
+type WidgetId = (typeof ALL_WIDGET_IDS)[number];
+
+// Map each widget to its module (undefined = always show)
+const WIDGET_MODULE: Partial<Record<WidgetId, keyof EnabledModules>> = {
+  tasks:        "tasks",
+  appointments: "calendar",
+  baby:         "baby",
+  shopping:     "shopping",
+  notes:        "notes",
+  balance:      "expenses",
+};
 
 interface DashboardGridProps {
   familyId: string;
@@ -55,6 +65,7 @@ interface DashboardGridProps {
   totalIncome: number;
   totalExpenses: number;
   balance: number;
+  enabledModules: EnabledModules;
 }
 
 // ── Sortable wrapper ─────────────────────────────────────────────────────────
@@ -85,7 +96,7 @@ function SortableCard({ id, children }: { id: string; children: React.ReactNode 
         {...attributes}
         {...listeners}
         aria-label="Drag to reorder"
-        className="absolute top-3.5 right-3 z-10 p-1 rounded opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-opacity touch-none"
+        className="absolute top-3.5 right-3 z-10 p-1 rounded md:opacity-0 md:group-hover:opacity-100 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground transition-opacity touch-none"
         // Prevent the button click from navigating if the card is inside a Link
         onPointerDown={(e) => e.stopPropagation()}
       >
@@ -281,10 +292,20 @@ export function DashboardGrid({
   totalIncome,
   totalExpenses,
   balance,
+  enabledModules,
 }: DashboardGridProps) {
   const { t } = useLanguage();
   const storageKey = `dashboard-order-${familyId}`;
-  const [order, setOrder] = useState<WidgetId[]>([...WIDGET_IDS]);
+  const [order, setOrder] = useState<WidgetId[]>([...ALL_WIDGET_IDS]);
+  const [mounted, setMounted] = useState(false);
+
+  // Derive which widgets are active based on enabled modules
+  const activeIds = order.filter((id) => {
+    const mod = WIDGET_MODULE[id];
+    return !mod || enabledModules[mod] !== false;
+  });
+
+  useEffect(() => setMounted(true), []);
 
   // Load persisted order from localStorage after mount
   useEffect(() => {
@@ -294,8 +315,8 @@ export function DashboardGrid({
         const parsed: WidgetId[] = JSON.parse(raw);
         // Only apply if it contains exactly the expected IDs
         const isValid =
-          parsed.length === WIDGET_IDS.length &&
-          WIDGET_IDS.every((id) => parsed.includes(id));
+          parsed.length === ALL_WIDGET_IDS.length &&
+          ALL_WIDGET_IDS.every((id) => parsed.includes(id));
         if (isValid) setOrder(parsed);
       }
     } catch {
@@ -336,11 +357,22 @@ export function DashboardGrid({
     balance: <BalanceWidget balance={balance} t={t} />,
   };
 
+  // Render a plain grid during SSR / before mount to avoid dnd-kit aria-describedby mismatch
+  if (!mounted) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+        {activeIds.map((id) => (
+          <div key={id}>{widgetMap[id]}</div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <SortableContext items={order} strategy={rectSortingStrategy}>
+      <SortableContext items={activeIds} strategy={rectSortingStrategy}>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-          {order.map((id) => (
+          {activeIds.map((id) => (
             <SortableCard key={id} id={id}>
               {widgetMap[id]}
             </SortableCard>

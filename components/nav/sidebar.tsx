@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useLanguage } from "@/components/providers/language-provider";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import type { EnabledModules, ModuleId } from "@/types";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -26,15 +27,20 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { NotificationBell } from "@/components/nav/notification-bell";
 import { toast } from "sonner";
 
 interface SidebarProps {
   userEmail?: string;
   displayName?: string;
   familyName?: string;
+  familyId?: string;
+  userId?: string;
+  inSheet?: boolean;
+  enabledModules?: EnabledModules;
 }
 
-export function Sidebar({ userEmail, displayName, familyName }: SidebarProps) {
+export function Sidebar({ userEmail, displayName, familyName, familyId, userId, inSheet, enabledModules }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
@@ -42,17 +48,20 @@ export function Sidebar({ userEmail, displayName, familyName }: SidebarProps) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const navItems = [
+  const allNavItems: { href: string; label: string; icon: React.ElementType; moduleId?: ModuleId }[] = [
     { href: "/dashboard", label: t.nav.dashboard, icon: LayoutDashboard },
-    { href: "/expenses", label: t.nav.expenses, icon: DollarSign },
-    { href: "/tasks", label: t.nav.tasks, icon: CheckSquare },
-    { href: "/calendar", label: t.nav.calendar, icon: CalendarDays },
-    { href: "/chat", label: t.nav.chat, icon: MessageCircle },
-    { href: "/baby", label: t.nav.baby, icon: Baby },
-    { href: "/shopping", label: t.nav.shopping, icon: ShoppingCart },
-    { href: "/notes", label: t.nav.notes, icon: FileText },
+    { href: "/expenses", label: t.nav.expenses, icon: DollarSign, moduleId: "expenses" },
+    { href: "/tasks", label: t.nav.tasks, icon: CheckSquare, moduleId: "tasks" },
+    { href: "/calendar", label: t.nav.calendar, icon: CalendarDays, moduleId: "calendar" },
+    { href: "/chat", label: t.nav.chat, icon: MessageCircle, moduleId: "chat" },
+    { href: "/baby", label: t.nav.baby, icon: Baby, moduleId: "baby" },
+    { href: "/shopping", label: t.nav.shopping, icon: ShoppingCart, moduleId: "shopping" },
+    { href: "/notes", label: t.nav.notes, icon: FileText, moduleId: "notes" },
     { href: "/settings", label: t.nav.settings, icon: Settings },
   ];
+  const navItems = allNavItems.filter(
+    ({ moduleId }) => !moduleId || !enabledModules || enabledModules[moduleId] !== false
+  );
 
   async function handleSignOut() {
     const supabase = createClient();
@@ -77,7 +86,7 @@ export function Sidebar({ userEmail, displayName, familyName }: SidebarProps) {
         <div className="w-9 h-9 bg-rose-100 dark:bg-rose-900/40 rounded-xl flex items-center justify-center flex-shrink-0">
           <Heart className="w-5 h-5 text-rose-500" fill="currentColor" />
         </div>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="font-bold text-foreground text-sm leading-tight">
             Family Hub
           </p>
@@ -85,6 +94,9 @@ export function Sidebar({ userEmail, displayName, familyName }: SidebarProps) {
             <p className="text-xs text-muted-foreground truncate">{familyName}</p>
           )}
         </div>
+        {!inSheet && familyId && userId && (
+          <NotificationBell familyId={familyId} userId={userId} />
+        )}
       </div>
 
       {/* Nav */}

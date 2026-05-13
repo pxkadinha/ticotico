@@ -5,15 +5,57 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Trash2, Loader2, Plus, ShoppingCart, X } from "lucide-react";
+import { Trash2, Loader2, Plus, ShoppingCart, X, Pencil, Check } from "lucide-react";
 import { toast } from "sonner";
-import { createShoppingList, addShoppingItem, toggleShoppingItem, deleteShoppingItem, deleteShoppingList } from "./actions";
+import { createShoppingList, addShoppingItem, toggleShoppingItem, deleteShoppingItem, deleteShoppingList, updateShoppingItem } from "./actions";
 import type { ShoppingList, ShoppingItem } from "@/types";
 import { useLanguage } from "@/components/providers/language-provider";
 
-function ShoppingItemRow({ item, listId }: { item: ShoppingItem; listId: string }) {
+function ShoppingItemRow({ item }: { item: ShoppingItem }) {
   const [isPending, startTransition] = useTransition();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editName, setEditName] = useState(item.name);
+  const [editQty, setEditQty] = useState(item.quantity ?? "");
   const { t } = useLanguage();
+
+  function handleSaveEdit() {
+    if (!editName.trim()) return;
+    startTransition(async () => {
+      try {
+        await updateShoppingItem(item.id, editName, editQty);
+        toast.success(t.shopping.itemUpdated);
+        setIsEditing(false);
+      } catch {
+        toast.error(t.shopping.couldNotUpdate);
+      }
+    });
+  }
+
+  if (isEditing) {
+    return (
+      <div className="flex items-center gap-2 py-2.5 border-b border-border last:border-0">
+        <Input
+          value={editName}
+          onChange={(e) => setEditName(e.target.value)}
+          className="flex-1 h-7 text-sm"
+          autoFocus
+          onKeyDown={(e) => { if (e.key === "Enter") handleSaveEdit(); if (e.key === "Escape") setIsEditing(false); }}
+        />
+        <Input
+          value={editQty}
+          onChange={(e) => setEditQty(e.target.value)}
+          placeholder={t.shopping.qty}
+          className="w-16 h-7 text-sm"
+        />
+        <Button variant="ghost" size="icon" className="w-6 h-6 text-emerald-500 hover:bg-emerald-500/10" onClick={handleSaveEdit} disabled={isPending}>
+          {isPending ? <Loader2 className="w-3 h-3 animate-spin" /> : <Check className="w-3 h-3" />}
+        </Button>
+        <Button variant="ghost" size="icon" className="w-6 h-6 text-muted-foreground hover:bg-muted" onClick={() => setIsEditing(false)}>
+          <X className="w-3 h-3" />
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className={`flex items-center gap-3 py-2.5 border-b border-border last:border-0 group ${isPending ? "opacity-50" : ""}`}>
@@ -33,16 +75,25 @@ function ShoppingItemRow({ item, listId }: { item: ShoppingItem; listId: string 
         {item.name}
         {item.quantity && <span className="text-muted-foreground ml-1">({item.quantity})</span>}
       </span>
-      <Button
-        variant="ghost" size="icon"
-        className="w-6 h-6 text-muted-foreground/50 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
-        onClick={() => startTransition(async () => {
-          try { await deleteShoppingItem(item.id); }
-          catch { toast.error(t.shopping.couldNotDelete); }
-        })}
-      >
-        <X className="w-3 h-3" />
-      </Button>
+      <div className="flex items-center gap-0.5 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+        <Button
+          variant="ghost" size="icon"
+          className="w-6 h-6 text-muted-foreground/50 hover:text-purple-400 hover:bg-purple-500/10"
+          onClick={() => setIsEditing(true)}
+        >
+          <Pencil className="w-3 h-3" />
+        </Button>
+        <Button
+          variant="ghost" size="icon"
+          className="w-6 h-6 text-muted-foreground/50 hover:text-red-400 hover:bg-red-500/10"
+          onClick={() => startTransition(async () => {
+            try { await deleteShoppingItem(item.id); }
+            catch { toast.error(t.shopping.couldNotDelete); }
+          })}
+        >
+          <X className="w-3 h-3" />
+        </Button>
+      </div>
     </div>
   );
 }
@@ -110,7 +161,7 @@ export function ShoppingListCard({ list }: { list: ShoppingList & { shopping_ite
         ) : (
           <div className="divide-y divide-border">
             {items.sort((a, b) => Number(a.checked) - Number(b.checked)).map((item) => (
-              <ShoppingItemRow key={item.id} item={item} listId={list.id} />
+              <ShoppingItemRow key={item.id} item={item} />
             ))}
           </div>
         )}

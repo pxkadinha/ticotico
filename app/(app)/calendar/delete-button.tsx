@@ -15,7 +15,7 @@ export function DeleteAppointmentButton({ id }: { id: string }) {
     <Button
       variant="ghost"
       size="icon"
-      className="w-7 h-7 text-muted-foreground/30 hover:text-red-400 hover:bg-red-500/10 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+      className="w-7 h-7 text-muted-foreground/30 hover:text-red-400 hover:bg-red-500/10 md:opacity-0 md:group-hover:opacity-100 transition-opacity flex-shrink-0"
       disabled={isPending}
       onClick={() =>
         startTransition(async () => {

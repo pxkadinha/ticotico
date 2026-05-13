@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
 import { useLanguage } from "@/components/providers/language-provider";
+import type { EnabledModules, ModuleId } from "@/types";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -20,17 +21,24 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Sidebar } from "./sidebar";
+import { NotificationBell } from "./notification-bell";
 
 interface MobileHeaderProps {
   userEmail?: string;
   displayName?: string;
   familyName?: string;
+  familyId?: string;
+  userId?: string;
+  enabledModules?: EnabledModules;
 }
 
 export function MobileHeader({
   userEmail,
   displayName,
   familyName,
+  familyId,
+  userId,
+  enabledModules,
 }: MobileHeaderProps) {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
@@ -38,13 +46,16 @@ export function MobileHeader({
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
 
-  const bottomNavItems = [
+  const allBottomItems: { href: string; label: string; icon: React.ElementType; moduleId?: ModuleId }[] = [
     { href: "/dashboard", label: t.nav.dashboard, icon: LayoutDashboard },
-    { href: "/expenses", label: t.nav.expenses, icon: DollarSign },
-    { href: "/tasks", label: t.nav.tasks, icon: CheckSquare },
-    { href: "/calendar", label: t.nav.calendar, icon: CalendarDays },
-    { href: "/chat", label: t.nav.chat, icon: MessageCircle },
+    { href: "/expenses", label: t.nav.expenses, icon: DollarSign, moduleId: "expenses" },
+    { href: "/tasks", label: t.nav.tasks, icon: CheckSquare, moduleId: "tasks" },
+    { href: "/calendar", label: t.nav.calendar, icon: CalendarDays, moduleId: "calendar" },
+    { href: "/chat", label: t.nav.chat, icon: MessageCircle, moduleId: "chat" },
   ];
+  const bottomNavItems = allBottomItems.filter(
+    ({ moduleId }) => !moduleId || !enabledModules || enabledModules[moduleId] !== false
+  );
 
   return (
     <>
@@ -57,6 +68,9 @@ export function MobileHeader({
           <span className="font-bold text-foreground text-sm">Family Hub</span>
         </div>
         <div className="flex items-center gap-1">
+          {familyId && userId && (
+            <NotificationBell familyId={familyId} userId={userId} />
+          )}
           <Button
             variant="ghost"
             size="icon"
@@ -86,6 +100,8 @@ export function MobileHeader({
                 userEmail={userEmail}
                 displayName={displayName}
                 familyName={familyName}
+                enabledModules={enabledModules}
+                inSheet
               />
             </SheetContent>
           </Sheet>
@@ -122,6 +138,8 @@ export function MobileHeader({
                 userEmail={userEmail}
                 displayName={displayName}
                 familyName={familyName}
+                enabledModules={enabledModules}
+                inSheet
               />
             </SheetContent>
           </Sheet>

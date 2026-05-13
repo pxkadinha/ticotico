@@ -51,7 +51,7 @@ function NoteCard({ note }: { note: Note }) {
           <h3 className="font-semibold text-foreground truncate">{note.title}</h3>
           <p className="text-xs text-muted-foreground mt-0.5">{format(new Date(note.updated_at), "d MMM yyyy")}</p>
         </div>
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <div className="flex gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
           <Dialog open={isEditing} onOpenChange={setIsEditing}>
             <DialogTrigger render={<Button variant="ghost" size="icon" className="w-7 h-7 text-muted-foreground hover:text-foreground" />}>
               <Edit2 className="w-3 h-3" />

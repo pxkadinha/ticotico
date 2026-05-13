@@ -1,8 +1,30 @@
 export type FamilyRole = "admin" | "member";
 
+export const ALL_MODULE_IDS = ["expenses", "tasks", "calendar", "chat", "baby", "shopping", "notes"] as const;
+export type ModuleId = (typeof ALL_MODULE_IDS)[number];
+export type EnabledModules = Record<ModuleId, boolean>;
+
+export const DEFAULT_MODULES: EnabledModules = {
+  expenses: true, tasks: true, calendar: true, chat: true,
+  baby: true, shopping: true, notes: true,
+};
+
+export function resolveModules(raw: unknown): EnabledModules {
+  const base = { ...DEFAULT_MODULES };
+  if (raw && typeof raw === "object") {
+    for (const key of ALL_MODULE_IDS) {
+      if (key in (raw as Record<string, unknown>)) {
+        base[key] = Boolean((raw as Record<string, unknown>)[key]);
+      }
+    }
+  }
+  return base;
+}
+
 export interface Family {
   id: string;
   name: string;
+  enabled_modules: EnabledModules | null;
   created_at: string;
 }
 

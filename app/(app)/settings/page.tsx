@@ -1,10 +1,12 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Link2 } from "lucide-react";
+import { Users, Link2, LayoutGrid } from "lucide-react";
 import { InviteSection } from "./invite-section";
 import { MembersSection } from "./members-section";
+import { ModulesSection } from "./modules-section";
 import { getT } from "@/lib/i18n/server";
+import { resolveModules } from "@/types";
 
 export default async function SettingsPage() {
   const supabase = await createClient();
@@ -18,7 +20,7 @@ export default async function SettingsPage() {
   const t = await getT();
 
   const { data: family } = await supabase
-    .from("families").select("id, name, invite_token").eq("id", member.family_id).single();
+    .from("families").select("id, name, invite_token, enabled_modules").eq("id", member.family_id).single();
 
   const { data: members } = await supabase
     .from("family_members").select("id, display_name, role, user_id, created_at")
@@ -40,6 +42,18 @@ export default async function SettingsPage() {
         </CardHeader>
         <CardContent>
           <InviteSection familyId={family?.id ?? ""} inviteToken={family?.invite_token ?? ""} isAdmin={member.role === "admin"} />
+        </CardContent>
+      </Card>
+
+      <Card className="border-0 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <LayoutGrid className="w-4 h-4 text-rose-500" />{t.settings.modules}
+          </CardTitle>
+          <CardDescription>{t.settings.modulesDescription}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ModulesSection initialModules={resolveModules(family?.enabled_modules)} />
         </CardContent>
       </Card>
 

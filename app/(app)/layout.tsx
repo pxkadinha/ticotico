@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/nav/sidebar";
 import { MobileHeader } from "@/components/nav/mobile-header";
 import { Toaster } from "@/components/ui/sonner";
+import { resolveModules } from "@/types";
 
 export default async function AppLayout({
   children,
@@ -20,7 +21,7 @@ export default async function AppLayout({
 
   const { data: member } = await supabase
     .from("family_members")
-    .select("display_name, family_id, families(name)")
+    .select("display_name, family_id, families(name, enabled_modules)")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -33,8 +34,9 @@ export default async function AppLayout({
     user.user_metadata?.display_name ??
     user.email?.split("@")[0];
 
-  const familyName =
-    (member?.families as { name?: string } | null)?.name ?? undefined;
+  const familyData = member?.families as { name?: string; enabled_modules?: unknown } | null;
+  const familyName = familyData?.name ?? undefined;
+  const enabledModules = resolveModules(familyData?.enabled_modules);
 
   return (
     <div className="flex h-dvh bg-background overflow-hidden">
@@ -44,6 +46,9 @@ export default async function AppLayout({
           userEmail={user.email}
           displayName={displayName}
           familyName={familyName}
+          familyId={member.family_id}
+          userId={user.id}
+          enabledModules={enabledModules}
         />
       </div>
 
@@ -52,6 +57,9 @@ export default async function AppLayout({
         userEmail={user.email}
         displayName={displayName}
         familyName={familyName}
+        familyId={member.family_id}
+        userId={user.id}
+        enabledModules={enabledModules}
       />
 
       {/* Main content */}
