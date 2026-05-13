@@ -22,6 +22,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { format, isToday, isTomorrow, startOfMonth, endOfMonth } from "date-fns";
+import { pt as ptLocale } from "date-fns/locale";
 
 async function getDashboardData(familyId: string) {
   const supabase = await createClient();
@@ -99,17 +100,17 @@ async function getDashboardData(familyId: string) {
 
 function formatAppointmentDate(dateStr: string) {
   const d = new Date(dateStr);
-  if (isToday(d)) return `Today ${format(d, "HH:mm")}`;
-  if (isTomorrow(d)) return `Tomorrow ${format(d, "HH:mm")}`;
-  return format(d, "MMM d, HH:mm");
+  if (isToday(d)) return `Hoje ${format(d, "HH:mm")}`;
+  if (isTomorrow(d)) return `Amanhã ${format(d, "HH:mm")}`;
+  return format(d, "d MMM, HH:mm", { locale: ptLocale });
 }
 
 function formatBabyLogType(type: string) {
   const labels: Record<string, string> = {
-    feed: "Feed",
-    sleep: "Sleep",
-    diaper: "Diaper change",
-    milestone: "Milestone",
+    feed: "Mamada",
+    sleep: "Sono",
+    diaper: "Fralda",
+    milestone: "Marco",
   };
   return labels[type] ?? type;
 }
@@ -143,17 +144,17 @@ export default async function DashboardPage() {
       {/* Greeting */}
       <div>
         <h1 className="text-2xl font-bold text-foreground">
-          Good {getGreeting()}, {firstName} 👋
+          {getGreeting()}, {firstName} 👋
         </h1>
         <p className="text-muted-foreground mt-1">
-          {format(new Date(), "EEEE, MMMM d")} — here&apos;s your family overview
+          {format(new Date(), "EEEE, d 'de' MMMM", { locale: ptLocale })} — aqui está o resumo da tua família
         </p>
       </div>
 
       {/* Top stats row */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <StatCard
-          title="Monthly income"
+          title="Receita mensal"
           value={`€${data.totalIncome.toFixed(2)}`}
           icon={TrendingUp}
           iconClass="text-emerald-500"
@@ -161,7 +162,7 @@ export default async function DashboardPage() {
           href="/expenses"
         />
         <StatCard
-          title="Monthly expenses"
+          title="Despesas mensais"
           value={`€${data.totalExpenses.toFixed(2)}`}
           icon={TrendingDown}
           iconClass="text-red-500"
@@ -169,7 +170,7 @@ export default async function DashboardPage() {
           href="/expenses"
         />
         <StatCard
-          title="Pending tasks"
+          title="Tarefas pendentes"
           value={String(data.tasks.length)}
           icon={CheckSquare}
           iconClass="text-blue-500"
@@ -177,7 +178,7 @@ export default async function DashboardPage() {
           href="/tasks"
         />
         <StatCard
-          title="Upcoming events"
+          title="Próximos eventos"
           value={String(data.appointments.length)}
           icon={CalendarDays}
           iconClass="text-purple-500"
@@ -197,12 +198,12 @@ export default async function DashboardPage() {
                   <CheckSquare className="w-4 h-4 text-blue-500" />
                   Tasks
                 </CardTitle>
-                <span className="text-xs text-rose-500 group-hover:underline">View all</span>
+                <span className="text-xs text-rose-500 group-hover:underline">Ver tudo</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
               {data.tasks.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-2">All done! 🎉</p>
+                <p className="text-sm text-muted-foreground py-2">Tudo feito! 🎉</p>
               ) : (
                 data.tasks.slice(0, 4).map((task) => (
                   <div
@@ -243,12 +244,12 @@ export default async function DashboardPage() {
                   <CalendarDays className="w-4 h-4 text-purple-500" />
                   Upcoming
                 </CardTitle>
-                <span className="text-xs text-rose-500 group-hover:underline">View all</span>
+                <span className="text-xs text-rose-500 group-hover:underline">Ver tudo</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
               {data.appointments.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-2">No upcoming events</p>
+                <p className="text-sm text-muted-foreground py-2">Sem próximos eventos</p>
               ) : (
                 data.appointments.slice(0, 4).map((appt) => (
                   <div
@@ -282,12 +283,12 @@ export default async function DashboardPage() {
                   <Baby className="w-4 h-4 text-pink-500" />
                   Baby
                 </CardTitle>
-                <span className="text-xs text-rose-500 group-hover:underline">View all</span>
+                <span className="text-xs text-rose-500 group-hover:underline">Ver tudo</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
               {data.babyLogs.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-2">No logs yet</p>
+                <p className="text-sm text-muted-foreground py-2">Sem registos</p>
               ) : (
                 data.babyLogs.map((log) => (
                   <div
@@ -319,12 +320,12 @@ export default async function DashboardPage() {
                   <ShoppingCart className="w-4 h-4 text-orange-500" />
                   Shopping
                 </CardTitle>
-                <span className="text-xs text-rose-500 group-hover:underline">View all</span>
+                <span className="text-xs text-rose-500 group-hover:underline">Ver tudo</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
               {data.shoppingLists.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-2">No lists yet</p>
+                <p className="text-sm text-muted-foreground py-2">Sem listas</p>
               ) : (
                 data.shoppingLists.map((list) => {
                   const items = (list.shopping_items as { checked: boolean }[]) ?? [];
@@ -356,12 +357,12 @@ export default async function DashboardPage() {
                   <FileText className="w-4 h-4 text-teal-500" />
                   Notes
                 </CardTitle>
-                <span className="text-xs text-rose-500 group-hover:underline">View all</span>
+                <span className="text-xs text-rose-500 group-hover:underline">Ver tudo</span>
               </div>
             </CardHeader>
             <CardContent className="space-y-2">
               {data.notes.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-2">No notes yet</p>
+                <p className="text-sm text-muted-foreground py-2">Sem notas</p>
               ) : (
                 data.notes.map((note) => (
                   <div
@@ -393,9 +394,9 @@ export default async function DashboardPage() {
                       : "text-red-500 dark:text-red-400"
                   }`}
                 />
-                Monthly balance
+                Saldo mensal
               </CardTitle>
-              <CardDescription>This month so far</CardDescription>
+              <CardDescription>Este mês até agora</CardDescription>
             </CardHeader>
             <CardContent>
               <p
@@ -408,11 +409,11 @@ export default async function DashboardPage() {
               {data.balance < 0 && (
                 <div className="flex items-center gap-1 mt-2 text-red-500 text-xs">
                   <AlertCircle className="w-3 h-3" />
-                  Expenses exceed income this month
+                  Despesas superiores à receita este mês
                 </div>
               )}
               <span className="text-xs text-rose-500 group-hover:underline mt-3 inline-block">
-                View details →
+                Ver detalhes →
               </span>
             </CardContent>
           </Card>
@@ -424,9 +425,9 @@ export default async function DashboardPage() {
 
 function getGreeting() {
   const hour = new Date().getHours();
-  if (hour < 12) return "morning";
-  if (hour < 18) return "afternoon";
-  return "evening";
+  if (hour < 12) return "Bom dia";
+  if (hour < 20) return "Boa tarde";
+  return "Boa noite";
 }
 
 function StatCard({

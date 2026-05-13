@@ -38,7 +38,7 @@ export default function LoginPage() {
           Family Hub
         </CardTitle>
         <CardDescription className="text-gray-500">
-          Sign in to manage your family
+          Inicia sessão para gerir a tua família
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-4">
@@ -56,13 +56,13 @@ export default function LoginPage() {
               id="email"
               name="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="tu@exemplo.com"
               required
               autoComplete="email"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Palavra-passe</Label>
             <Input
               id="password"
               name="password"
@@ -78,16 +78,16 @@ export default function LoginPage() {
             disabled={isPending}
           >
             {isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-            Sign in
+            Iniciar sessão
           </Button>
         </form>
         <p className="text-center text-sm text-gray-500 mt-6">
-          New to Family Hub?{" "}
+          Novo no Family Hub?{" "}
           <Link
             href="/register"
             className="text-rose-500 font-medium hover:underline"
           >
-            Create an account
+            Criar conta
           </Link>
         </p>
       </CardContent>

@@ -26,7 +26,6 @@ export default function RegisterPage() {
     null
   );
 
-  // Email confirmation waiting state
   if (state && "awaitingConfirmation" in state) {
     return (
       <Card className="w-full max-w-md shadow-xl border-0 bg-white/80 backdrop-blur-sm text-center">
@@ -35,15 +34,15 @@ export default function RegisterPage() {
             <Mail className="w-7 h-7 text-blue-500" />
           </div>
           <h2 className="text-xl font-bold text-gray-900 mb-2">
-            Check your email
+            Verifica o teu email
           </h2>
           <p className="text-gray-500 text-sm leading-relaxed">
-            We sent a confirmation link to{" "}
+            Enviámos um link de confirmação para{" "}
             <span className="font-medium text-gray-700">{state.email}</span>.
-            Click it to activate your account.
+            Clica nele para ativar a tua conta.
           </p>
           <p className="text-xs text-gray-400 mt-4">
-            Didn&apos;t get it? Check your spam folder.
+            Não recebeste? Verifica a pasta de spam.
           </p>
         </CardContent>
       </Card>
@@ -59,10 +58,10 @@ export default function RegisterPage() {
           </div>
         </div>
         <CardTitle className="text-2xl font-bold text-gray-900">
-          Create your family
+          Cria a tua família
         </CardTitle>
         <CardDescription className="text-gray-500">
-          Set up your Family Hub account
+          Configura a tua conta do Family Hub
         </CardDescription>
       </CardHeader>
       <CardContent className="pt-4">
@@ -75,7 +74,7 @@ export default function RegisterPage() {
 
         <form action={action} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="displayName">Your name</Label>
+            <Label htmlFor="displayName">O teu nome</Label>
             <Input
               id="displayName"
               name="displayName"
@@ -84,11 +83,11 @@ export default function RegisterPage() {
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="familyName">Family name</Label>
+            <Label htmlFor="familyName">Nome da família</Label>
             <Input
               id="familyName"
               name="familyName"
-              placeholder="Pescadinha Family"
+              placeholder="Família Pescadinha"
             />
           </div>
           <div className="space-y-2">
@@ -97,18 +96,18 @@ export default function RegisterPage() {
               id="email"
               name="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder="tu@exemplo.com"
               required
               autoComplete="email"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">Palavra-passe</Label>
             <Input
               id="password"
               name="password"
               type="password"
-              placeholder="Min. 6 characters"
+              placeholder="Mín. 6 caracteres"
               required
               autoComplete="new-password"
             />
@@ -119,16 +118,16 @@ export default function RegisterPage() {
             disabled={isPending}
           >
             {isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-            Create account
+            Criar conta
           </Button>
         </form>
         <p className="text-center text-sm text-gray-500 mt-6">
-          Already have an account?{" "}
+          Já tens conta?{" "}
           <Link
             href="/login"
             className="text-rose-500 font-medium hover:underline"
           >
-            Sign in
+            Iniciar sessão
           </Link>
         </p>
       </CardContent>

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
+import { useLanguage } from "@/components/providers/language-provider";
 import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
@@ -19,14 +20,6 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Sidebar } from "./sidebar";
 
-const bottomNavItems = [
-  { href: "/dashboard", label: "Home", icon: LayoutDashboard },
-  { href: "/expenses", label: "Expenses", icon: DollarSign },
-  { href: "/tasks", label: "Tasks", icon: CheckSquare },
-  { href: "/calendar", label: "Calendar", icon: CalendarDays },
-  { href: "/baby", label: "Baby", icon: Baby },
-];
-
 interface MobileHeaderProps {
   userEmail?: string;
   displayName?: string;
@@ -40,10 +33,15 @@ export function MobileHeader({
 }: MobileHeaderProps) {
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
+  const { t, locale, setLocale } = useLanguage();
 
-  const pageTitle = pathname
-    .replace("/", "")
-    .replace(/^./, (s) => s.toUpperCase());
+  const bottomNavItems = [
+    { href: "/dashboard", label: t.nav.dashboard, icon: LayoutDashboard },
+    { href: "/expenses", label: t.nav.expenses, icon: DollarSign },
+    { href: "/tasks", label: t.nav.tasks, icon: CheckSquare },
+    { href: "/calendar", label: t.nav.calendar, icon: CalendarDays },
+    { href: "/baby", label: t.nav.baby, icon: Baby },
+  ];
 
   return (
     <>
@@ -53,11 +51,17 @@ export function MobileHeader({
           <div className="w-7 h-7 bg-rose-100 dark:bg-rose-900/40 rounded-lg flex items-center justify-center">
             <Heart className="w-4 h-4 text-rose-500" fill="currentColor" />
           </div>
-          <span className="font-bold text-foreground text-sm">
-            {pageTitle || "Family Hub"}
-          </span>
+          <span className="font-bold text-foreground text-sm">Family Hub</span>
         </div>
         <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-8 h-8 text-xs font-semibold text-muted-foreground"
+            onClick={() => setLocale(locale === "pt" ? "en" : "pt")}
+          >
+            {locale === "pt" ? "EN" : "PT"}
+          </Button>
           <Button
             variant="ghost"
             size="icon"
@@ -105,11 +109,10 @@ export function MobileHeader({
               </Link>
             );
           })}
-          {/* More — opens full sidebar sheet */}
           <Sheet>
             <SheetTrigger className="flex-1 flex flex-col items-center gap-0.5 py-2 px-1 text-xs font-medium text-muted-foreground">
               <Menu className="w-5 h-5" />
-              <span>More</span>
+              <span>{t.nav.more}</span>
             </SheetTrigger>
             <SheetContent side="left" className="p-0 w-64">
               <Sidebar

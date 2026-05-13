@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/sonner";
+import { LanguageProvider } from "@/components/providers/language-provider";
+import { getLocale } from "@/lib/i18n/server";
 import "./globals.css";
 
 const jakartaSans = Plus_Jakarta_Sans({
@@ -21,13 +23,14 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
   return (
-    <html lang="en" className={`${jakartaSans.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang={locale} className={`${jakartaSans.variable} h-full antialiased`} suppressHydrationWarning>
       <body className="h-full">
         <ThemeProvider
           attribute="class"
@@ -35,8 +38,10 @@ export default function RootLayout({
           enableSystem={false}
           disableTransitionOnChange
         >
-          {children}
-          <Toaster richColors position="top-right" />
+          <LanguageProvider initialLocale={locale}>
+            {children}
+            <Toaster richColors position="top-right" />
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

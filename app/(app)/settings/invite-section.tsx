@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Copy, Check, RefreshCw, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { regenerateInviteToken } from "./actions";
+import { useLanguage } from "@/components/providers/language-provider";
 
 interface InviteSectionProps {
   familyId: string;
@@ -16,6 +17,7 @@ interface InviteSectionProps {
 export function InviteSection({ familyId, inviteToken, isAdmin }: InviteSectionProps) {
   const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const { t } = useLanguage();
 
   const baseUrl = typeof window !== "undefined" ? window.location.origin : "";
   const inviteUrl = `${baseUrl}/join?token=${inviteToken}`;
@@ -23,7 +25,7 @@ export function InviteSection({ familyId, inviteToken, isAdmin }: InviteSectionP
   function handleCopy() {
     navigator.clipboard.writeText(inviteUrl);
     setCopied(true);
-    toast.success("Invite link copied!");
+    toast.success(t.settings.copied);
     setTimeout(() => setCopied(false), 2000);
   }
 
@@ -31,56 +33,26 @@ export function InviteSection({ familyId, inviteToken, isAdmin }: InviteSectionP
     startTransition(async () => {
       try {
         await regenerateInviteToken(familyId);
-        toast.success("New invite link generated");
-      } catch {
-        toast.error("Could not regenerate link");
-      }
+        toast.success(t.settings.newLinkGenerated);
+      } catch { toast.error(t.settings.couldNotRegenerate); }
     });
   }
 
   return (
     <div className="space-y-3">
       <div className="flex gap-2">
-        <Input
-          value={inviteUrl}
-          readOnly
-          className="font-mono text-xs text-gray-500 bg-gray-50"
-        />
-        <Button
-          variant="outline"
-          size="icon"
-          onClick={handleCopy}
-          className="flex-shrink-0"
-        >
-          {copied ? (
-            <Check className="w-4 h-4 text-emerald-500" />
-          ) : (
-            <Copy className="w-4 h-4" />
-          )}
+        <Input value={inviteUrl} readOnly className="font-mono text-xs text-muted-foreground bg-muted" />
+        <Button variant="outline" size="icon" onClick={handleCopy} className="flex-shrink-0">
+          {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
         </Button>
       </div>
-
       {isAdmin && (
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={handleRegenerate}
-          disabled={isPending}
-          className="text-gray-500 hover:text-gray-700 px-0"
-        >
-          {isPending ? (
-            <Loader2 className="w-3 h-3 animate-spin mr-1.5" />
-          ) : (
-            <RefreshCw className="w-3 h-3 mr-1.5" />
-          )}
-          Generate new link
+        <Button variant="ghost" size="sm" onClick={handleRegenerate} disabled={isPending} className="text-muted-foreground hover:text-foreground px-0">
+          {isPending ? <Loader2 className="w-3 h-3 animate-spin mr-1.5" /> : <RefreshCw className="w-3 h-3 mr-1.5" />}
+          {t.settings.generateNewLink}
         </Button>
       )}
-
-      <p className="text-xs text-gray-400">
-        Send this link to your partner. They&apos;ll create an account (or log in)
-        and be added to your family automatically.
-      </p>
+      <p className="text-xs text-muted-foreground">{t.settings.inviteInfo}</p>
     </div>
   );
 }

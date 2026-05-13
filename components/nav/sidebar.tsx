@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
+import { useLanguage } from "@/components/providers/language-provider";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -25,17 +26,6 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/expenses", label: "Expenses", icon: DollarSign },
-  { href: "/tasks", label: "Tasks", icon: CheckSquare },
-  { href: "/calendar", label: "Calendar", icon: CalendarDays },
-  { href: "/baby", label: "Baby", icon: Baby },
-  { href: "/shopping", label: "Shopping", icon: ShoppingCart },
-  { href: "/notes", label: "Notes", icon: FileText },
-  { href: "/settings", label: "Settings", icon: Settings },
-];
-
 interface SidebarProps {
   userEmail?: string;
   displayName?: string;
@@ -46,11 +36,23 @@ export function Sidebar({ userEmail, displayName, familyName }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, setTheme } = useTheme();
+  const { t, locale, setLocale } = useLanguage();
+
+  const navItems = [
+    { href: "/dashboard", label: t.nav.dashboard, icon: LayoutDashboard },
+    { href: "/expenses", label: t.nav.expenses, icon: DollarSign },
+    { href: "/tasks", label: t.nav.tasks, icon: CheckSquare },
+    { href: "/calendar", label: t.nav.calendar, icon: CalendarDays },
+    { href: "/baby", label: t.nav.baby, icon: Baby },
+    { href: "/shopping", label: t.nav.shopping, icon: ShoppingCart },
+    { href: "/notes", label: t.nav.notes, icon: FileText },
+    { href: "/settings", label: t.nav.settings, icon: Settings },
+  ];
 
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
-    toast.success("Signed out successfully");
+    toast.success(t.nav.signOut);
     router.push("/login");
   }
 
@@ -115,20 +117,31 @@ export function Sidebar({ userEmail, displayName, familyName }: SidebarProps) {
 
       {/* User + controls */}
       <div className="px-3 py-4 border-t border-border space-y-1">
-        {/* Theme toggle */}
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground px-3"
-        >
-          {theme === "dark" ? (
-            <Sun className="w-4 h-4" />
-          ) : (
-            <Moon className="w-4 h-4" />
-          )}
-          {theme === "dark" ? "Light mode" : "Dark mode"}
-        </Button>
+        {/* Theme + Language toggles */}
+        <div className="flex gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            className="flex-1 justify-start gap-2 text-muted-foreground hover:text-foreground px-3"
+          >
+            {theme === "dark" ? (
+              <Sun className="w-4 h-4" />
+            ) : (
+              <Moon className="w-4 h-4" />
+            )}
+            {theme === "dark" ? t.nav.lightMode : t.nav.darkMode}
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setLocale(locale === "pt" ? "en" : "pt")}
+            className="px-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
+            title={locale === "pt" ? "Switch to English" : "Mudar para Português"}
+          >
+            {locale === "pt" ? "EN" : "PT"}
+          </Button>
+        </div>
 
         <div className="flex items-center gap-3 px-3 py-2 rounded-xl">
           <Avatar className="w-8 h-8 flex-shrink-0">
@@ -151,7 +164,7 @@ export function Sidebar({ userEmail, displayName, familyName }: SidebarProps) {
           className="w-full justify-start gap-3 text-muted-foreground hover:text-red-500 hover:bg-red-500/10 px-3"
         >
           <LogOut className="w-4 h-4" />
-          Sign out
+          {t.nav.signOut}
         </Button>
       </div>
     </aside>

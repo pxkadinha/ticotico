@@ -50,10 +50,10 @@ export default function SetupPage() {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold text-gray-900">
-            Set up your family
+            Configura a tua família
           </CardTitle>
           <CardDescription className="text-gray-500">
-            You&apos;re almost in — just give your family a name.
+            Estás quase — dá um nome à tua família.
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-4">
@@ -66,7 +66,7 @@ export default function SetupPage() {
 
           <form action={action} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="displayName">Your name</Label>
+              <Label htmlFor="displayName">O teu nome</Label>
               <Input
                 id="displayName"
                 name="displayName"
@@ -75,11 +75,11 @@ export default function SetupPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="familyName">Family name</Label>
+              <Label htmlFor="familyName">Nome da família</Label>
               <Input
                 id="familyName"
                 name="familyName"
-                placeholder="Pescadinha Family"
+                placeholder="Família Pescadinha"
               />
             </div>
             <Button
@@ -88,7 +88,7 @@ export default function SetupPage() {
               disabled={isPending}
             >
               {isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-              Enter Family Hub
+              Entrar no Family Hub
             </Button>
           </form>
 

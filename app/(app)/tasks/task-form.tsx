@@ -6,21 +6,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { addTask } from "./actions";
+import { useLanguage } from "@/components/providers/language-provider";
 
 export function TaskForm() {
   const [isPending, startTransition] = useTransition();
   const [priority, setPriority] = useState("medium");
   const [recurrence, setRecurrence] = useState("none");
+  const { t } = useLanguage();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -31,7 +27,7 @@ export function TaskForm() {
     startTransition(async () => {
       try {
         await addTask(formData);
-        toast.success("Task added");
+        toast.success(t.tasks.added);
         (e.target as HTMLFormElement).reset();
         setPriority("medium");
         setRecurrence("none");
@@ -44,63 +40,49 @@ export function TaskForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="title">Task title</Label>
-        <Input id="title" name="title" placeholder="What needs doing?" required />
+        <Label htmlFor="title">{t.tasks.taskTitle}</Label>
+        <Input id="title" name="title" placeholder={t.tasks.whatToDo} required />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Details (optional)</Label>
-        <Textarea
-          id="description"
-          name="description"
-          placeholder="Any extra details..."
-          rows={2}
-          className="resize-none"
-        />
+        <Label htmlFor="description">{t.tasks.details}</Label>
+        <Textarea id="description" name="description" placeholder={t.tasks.extraDetails} rows={2} className="resize-none" />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-2">
-          <Label>Priority</Label>
+          <Label>{t.tasks.priority}</Label>
           <Select value={priority} onValueChange={(v) => v && setPriority(v)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
+            <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="high">High</SelectItem>
-              <SelectItem value="medium">Medium</SelectItem>
-              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="high">{t.tasks.high}</SelectItem>
+              <SelectItem value="medium">{t.tasks.medium}</SelectItem>
+              <SelectItem value="low">{t.tasks.low}</SelectItem>
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
-          <Label>Repeat</Label>
+          <Label>{t.tasks.repeat}</Label>
           <Select value={recurrence} onValueChange={(v) => v && setRecurrence(v)}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
+            <SelectTrigger><SelectValue /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="none">No repeat</SelectItem>
-              <SelectItem value="daily">Daily</SelectItem>
-              <SelectItem value="weekly">Weekly</SelectItem>
-              <SelectItem value="monthly">Monthly</SelectItem>
+              <SelectItem value="none">{t.tasks.noRepeat}</SelectItem>
+              <SelectItem value="daily">{t.tasks.daily}</SelectItem>
+              <SelectItem value="weekly">{t.tasks.weekly}</SelectItem>
+              <SelectItem value="monthly">{t.tasks.monthly}</SelectItem>
             </SelectContent>
           </Select>
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="due_date">Due date (optional)</Label>
+        <Label htmlFor="due_date">{t.tasks.dueDate}</Label>
         <Input id="due_date" name="due_date" type="date" />
       </div>
 
-      <Button
-        type="submit"
-        disabled={isPending}
-        className="w-full bg-rose-500 hover:bg-rose-600 text-white"
-      >
+      <Button type="submit" disabled={isPending} className="w-full bg-rose-500 hover:bg-rose-600 text-white">
         {isPending && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-        Add task
+        {t.tasks.addTask}
       </Button>
     </form>
   );
