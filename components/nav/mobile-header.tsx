@@ -46,7 +46,7 @@ export function MobileHeader({
   return (
     <>
       {/* Top header for mobile */}
-      <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 sticky top-0 z-40">
+      <header className="md:hidden flex items-center justify-between px-4 py-3 bg-white border-b border-gray-100 fixed top-0 left-0 right-0 z-40">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 bg-rose-100 rounded-lg flex items-center justify-center">
             <Heart className="w-4 h-4 text-rose-500" fill="currentColor" />

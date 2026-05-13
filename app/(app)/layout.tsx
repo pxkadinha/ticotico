@@ -24,7 +24,6 @@ export default async function AppLayout({
     .eq("user_id", user.id)
     .maybeSingle();
 
-  // No family yet — send them to the one-time setup page.
   if (!member) {
     redirect("/setup");
   }
@@ -38,9 +37,9 @@ export default async function AppLayout({
     (member?.families as { name?: string } | null)?.name ?? undefined;
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
-      {/* Desktop sidebar */}
-      <div className="hidden md:flex">
+    <div className="flex h-dvh bg-gray-50 overflow-hidden">
+      {/* Desktop sidebar — hidden on mobile */}
+      <div className="hidden md:flex md:flex-shrink-0">
         <Sidebar
           userEmail={user.email}
           displayName={displayName}
@@ -48,7 +47,7 @@ export default async function AppLayout({
         />
       </div>
 
-      {/* Mobile header */}
+      {/* Mobile header (top bar + bottom tabs) — hidden on desktop */}
       <MobileHeader
         userEmail={user.email}
         displayName={displayName}
@@ -56,8 +55,10 @@ export default async function AppLayout({
       />
 
       {/* Main content */}
-      <main className="flex-1 overflow-y-auto">
-        <div className="md:p-8 p-4 pb-24 md:pb-8">{children}</div>
+      <main className="flex-1 overflow-y-auto w-full min-w-0">
+        <div className="p-4 pt-16 pb-24 md:pt-0 md:pb-8 md:p-8">
+          {children}
+        </div>
       </main>
 
       <Toaster richColors position="top-right" />
