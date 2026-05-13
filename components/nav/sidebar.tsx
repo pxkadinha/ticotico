@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -21,6 +22,7 @@ import {
   Settings,
   Sun,
   Moon,
+  MessageCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -37,12 +39,15 @@ export function Sidebar({ userEmail, displayName, familyName }: SidebarProps) {
   const router = useRouter();
   const { theme, setTheme } = useTheme();
   const { t, locale, setLocale } = useLanguage();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const navItems = [
     { href: "/dashboard", label: t.nav.dashboard, icon: LayoutDashboard },
     { href: "/expenses", label: t.nav.expenses, icon: DollarSign },
     { href: "/tasks", label: t.nav.tasks, icon: CheckSquare },
     { href: "/calendar", label: t.nav.calendar, icon: CalendarDays },
+    { href: "/chat", label: t.nav.chat, icon: MessageCircle },
     { href: "/baby", label: t.nav.baby, icon: Baby },
     { href: "/shopping", label: t.nav.shopping, icon: ShoppingCart },
     { href: "/notes", label: t.nav.notes, icon: FileText },
@@ -125,12 +130,12 @@ export function Sidebar({ userEmail, displayName, familyName }: SidebarProps) {
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
             className="flex-1 justify-start gap-2 text-muted-foreground hover:text-foreground px-3"
           >
-            {theme === "dark" ? (
+            {mounted && theme === "dark" ? (
               <Sun className="w-4 h-4" />
             ) : (
               <Moon className="w-4 h-4" />
             )}
-            {theme === "dark" ? t.nav.lightMode : t.nav.darkMode}
+            {mounted && theme === "dark" ? t.nav.lightMode : t.nav.darkMode}
           </Button>
           <Button
             variant="ghost"

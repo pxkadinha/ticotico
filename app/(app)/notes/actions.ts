@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
+import { logActivity } from "@/lib/activity";
 
 export async function createNote(formData: FormData) {
   const supabase = await createClient();
@@ -12,7 +13,7 @@ export async function createNote(formData: FormData) {
 
   const { data: member } = await supabase
     .from("family_members")
-    .select("family_id")
+    .select("family_id, display_name")
     .eq("user_id", user.id)
     .single();
   if (!member) throw new Error("No family found");
@@ -23,15 +24,28 @@ export async function createNote(formData: FormData) {
     .map((t) => t.trim())
     .filter(Boolean);
 
+  const title = formData.get("title") as string;
+
   const { error } = await supabase.from("notes").insert({
     family_id: member.family_id,
     created_by: user.id,
-    title: formData.get("title") as string,
+    title,
     content: (formData.get("content") as string) || null,
     tags,
   });
 
   if (error) throw new Error(error.message);
+
+  await logActivity({
+    supabase,
+    familyId: member.family_id,
+    userId: user.id,
+    displayName: member.display_name ?? "Someone",
+    icon: "📓",
+    content: `{name} added note "${title}"`,
+    action: "note_created",
+  });
+
   revalidatePath("/notes");
 }
 

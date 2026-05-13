@@ -23,7 +23,7 @@ export default async function ShoppingPage() {
   const allLists = (lists ?? []) as (ShoppingList & { shopping_items: ShoppingItem[] })[];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 pt-4 md:pt-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">{t.shopping.title}</h1>
         <p className="text-muted-foreground mt-1">{t.shopping.subtitle}</p>

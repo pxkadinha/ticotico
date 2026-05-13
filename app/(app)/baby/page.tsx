@@ -63,12 +63,12 @@ export default async function BabyPage() {
   function formatLogDate(dateStr: string) {
     const d = new Date(dateStr);
     if (isToday(d)) return `${t.calendar.today} ${format(d, "HH:mm")}`;
-    if (isYesterday(d)) return `${t.baby.sleep === "Sono" ? "Ontem" : "Yesterday"} ${format(d, "HH:mm")}`;
+    if (isYesterday(d)) return `${t.calendar.yesterday} ${format(d, "HH:mm")}`;
     return format(d, "d MMM, HH:mm");
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-8 pt-4 md:pt-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">{t.baby.title}</h1>
         <p className="text-muted-foreground mt-1">{t.baby.subtitle}</p>

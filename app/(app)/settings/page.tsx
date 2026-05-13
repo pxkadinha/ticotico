@@ -25,7 +25,7 @@ export default async function SettingsPage() {
     .eq("family_id", member.family_id).order("created_at", { ascending: true });
 
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
+    <div className="max-w-2xl mx-auto space-y-8 pt-4 md:pt-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">{t.settings.title}</h1>
         <p className="text-muted-foreground mt-1">{family?.name}</p>

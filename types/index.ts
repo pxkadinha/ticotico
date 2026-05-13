@@ -101,6 +101,20 @@ export interface ShoppingItem {
   created_at: string;
 }
 
+export interface Message {
+  id: string;
+  family_id: string;
+  user_id: string | null;
+  content: string;
+  type: "text" | "activity";
+  metadata: {
+    icon?: string;
+    action?: string;
+    display_name?: string;
+  } | null;
+  created_at: string;
+}
+
 export interface Note {
   id: string;
   family_id: string;

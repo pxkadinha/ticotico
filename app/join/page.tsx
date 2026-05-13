@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { JoinClient } from "./join-client";
+import { getT } from "@/lib/i18n/server";
 
 interface PageProps {
   searchParams: Promise<{ token?: string }>;
@@ -23,16 +24,16 @@ export default async function JoinPage({ searchParams }: PageProps) {
     .maybeSingle();
 
   if (!family) {
+    const t = await getT();
     return (
-      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 flex items-center justify-center p-4">
-        <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full text-center">
+      <div className="min-h-screen bg-gradient-to-br from-rose-50 via-orange-50 to-amber-50 dark:from-zinc-950 dark:via-zinc-900 dark:to-zinc-950 flex items-center justify-center p-4">
+        <div className="bg-card rounded-2xl shadow-xl p-8 max-w-sm w-full text-center border border-border">
           <p className="text-4xl mb-4">🔗</p>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">
-            Invalid invite link
+          <h2 className="text-xl font-bold text-foreground mb-2">
+            {t.join.invalidTitle}
           </h2>
-          <p className="text-gray-500 text-sm">
-            This invite link is no longer valid or has already been used. Ask
-            your partner to generate a new one from Settings.
+          <p className="text-muted-foreground text-sm">
+            {t.join.invalidDesc}
           </p>
         </div>
       </div>

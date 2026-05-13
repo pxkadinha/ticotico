@@ -42,7 +42,7 @@ export default async function ExpensesPage() {
   const categories = Object.entries(categoryMap).sort((a, b) => b[1] - a[1]);
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
+    <div className="max-w-5xl mx-auto space-y-8 pt-4 md:pt-6">
       <div>
         <h1 className="text-2xl font-bold text-foreground">{t.expenses.title}</h1>
         <p className="text-muted-foreground mt-1">{format(now, "MMMM yyyy")}</p>

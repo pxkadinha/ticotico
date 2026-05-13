@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "next-themes";
@@ -10,7 +11,7 @@ import {
   DollarSign,
   CheckSquare,
   CalendarDays,
-  Baby,
+  MessageCircle,
   Heart,
   Menu,
   Sun,
@@ -34,13 +35,15 @@ export function MobileHeader({
   const pathname = usePathname();
   const { theme, setTheme } = useTheme();
   const { t, locale, setLocale } = useLanguage();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const bottomNavItems = [
     { href: "/dashboard", label: t.nav.dashboard, icon: LayoutDashboard },
     { href: "/expenses", label: t.nav.expenses, icon: DollarSign },
     { href: "/tasks", label: t.nav.tasks, icon: CheckSquare },
     { href: "/calendar", label: t.nav.calendar, icon: CalendarDays },
-    { href: "/baby", label: t.nav.baby, icon: Baby },
+    { href: "/chat", label: t.nav.chat, icon: MessageCircle },
   ];
 
   return (
@@ -68,7 +71,7 @@ export function MobileHeader({
             className="w-9 h-9 text-muted-foreground"
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           >
-            {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            {mounted && theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
           </Button>
           <Sheet>
             <SheetTrigger
