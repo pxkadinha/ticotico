@@ -1,10 +1,11 @@
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Users, Link2, LayoutGrid } from "lucide-react";
+import { Users, Link2, LayoutGrid, Sun } from "lucide-react";
 import { InviteSection } from "./invite-section";
 import { MembersSection } from "./members-section";
 import { ModulesSection } from "./modules-section";
+import { AppearanceSection } from "./appearance-section";
 import { getT } from "@/lib/i18n/server";
 import { resolveModules } from "@/types";
 
@@ -32,6 +33,18 @@ export default async function SettingsPage() {
         <h1 className="text-2xl font-bold text-foreground">{t.settings.title}</h1>
         <p className="text-muted-foreground mt-1">{family?.name}</p>
       </div>
+
+      <Card className="border-0 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-base flex items-center gap-2">
+            <Sun className="w-4 h-4 text-rose-500" />{t.settings.appearance}
+          </CardTitle>
+          <CardDescription>{t.settings.appearanceDesc}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AppearanceSection />
+        </CardContent>
+      </Card>
 
       <Card className="border-0 shadow-sm">
         <CardHeader>

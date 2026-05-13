@@ -474,8 +474,8 @@ export function ExpensesAnalytics({ yearExpenses, familyMembers, currentUserId, 
 
       {/* Add form + transaction list */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-1">
-          <Card className="border-0 shadow-sm">
+        <div className="lg:col-span-1" id="add-expense">
+          <Card className="border-0 shadow-sm scroll-mt-24">
             <CardHeader><CardTitle className="text-base">{t.expenses.addTransaction}</CardTitle></CardHeader>
             <CardContent>{children}</CardContent>
           </Card>

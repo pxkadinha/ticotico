@@ -2,8 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { Sidebar } from "@/components/nav/sidebar";
 import { MobileHeader } from "@/components/nav/mobile-header";
-import { Toaster } from "@/components/ui/sonner";
 import { resolveModules } from "@/types";
+import { KeyboardHelp } from "@/components/keyboard-help";
 
 export default async function AppLayout({
   children,
@@ -69,7 +69,7 @@ export default async function AppLayout({
         </div>
       </main>
 
-      <Toaster richColors position="top-right" />
+      <KeyboardHelp />
     </div>
   );
 }

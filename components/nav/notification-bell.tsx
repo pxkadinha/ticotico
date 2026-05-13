@@ -166,6 +166,14 @@ export function NotificationBell({ familyId, userId }: NotificationBellProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  function handleMarkAllRead(e: React.MouseEvent) {
+    e.stopPropagation();
+    const now = new Date().toISOString();
+    localStorage.setItem(lastSeenKey, now);
+    setLastSeen(now);
+    setUnread(0);
+  }
+
   function handleOpen() {
     setOpen((o) => !o);
     if (!open) {
@@ -206,18 +214,29 @@ export function NotificationBell({ familyId, userId }: NotificationBellProps) {
       {open && (
         <div className="fixed left-3 right-3 top-[60px] md:absolute md:left-0 md:right-auto md:top-full md:mt-2 md:w-80 bg-popover border border-border rounded-xl shadow-xl z-50 overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border">
-            <p className="text-sm font-semibold text-foreground">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border gap-2">
+            <p className="text-sm font-semibold text-foreground truncate">
               {t.nav.notifications ?? "Notifications"}
             </p>
-            {mounted && !pushEnabled && notifPermission !== "denied" && (
-              <button
-                onClick={handleEnablePush}
-                className="text-xs text-rose-500 hover:text-rose-600 font-medium"
-              >
-                {t.nav.enablePush ?? "Enable push"}
-              </button>
-            )}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              {mounted && unread > 0 && (
+                <button
+                  type="button"
+                  onClick={handleMarkAllRead}
+                  className="text-xs text-muted-foreground hover:text-foreground font-medium"
+                >
+                  {t.nav.markAllRead}
+                </button>
+              )}
+              {mounted && !pushEnabled && notifPermission !== "denied" && (
+                <button
+                  onClick={handleEnablePush}
+                  className="text-xs text-rose-500 hover:text-rose-600 font-medium"
+                >
+                  {t.nav.enablePush ?? "Enable push"}
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Message list */}

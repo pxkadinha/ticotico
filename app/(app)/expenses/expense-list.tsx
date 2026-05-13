@@ -3,8 +3,8 @@
 import { useState, useTransition } from "react";
 import { format } from "date-fns";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -25,6 +25,7 @@ import { toast } from "sonner";
 import { deleteExpense, updateExpense } from "./actions";
 import type { Expense } from "@/types";
 import { useLanguage } from "@/components/providers/language-provider";
+import { cn } from "@/lib/utils";
 
 const CATEGORY_COLORS: Record<string, string> = {
   food: "bg-orange-500/10 text-orange-600",
@@ -225,8 +226,14 @@ export function ExpenseList({ expenses }: { expenses: Expense[] }) {
   if (expenses.length === 0) {
     return (
       <Card className="border-0 shadow-sm">
-        <CardContent className="py-16 text-center text-muted-foreground">
-          {t.expenses.noTransactions}
+        <CardContent className="py-16 text-center text-muted-foreground space-y-4">
+          <p>{t.expenses.noTransactions}</p>
+          <a
+            href="#add-expense"
+            className={cn(buttonVariants({ variant: "outline", size: "sm" }), "mt-2 inline-flex")}
+          >
+            {t.expenses.addFirstCta}
+          </a>
         </CardContent>
       </Card>
     );

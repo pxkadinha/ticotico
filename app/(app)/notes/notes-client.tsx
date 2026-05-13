@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { format } from "date-fns";
+import { format, formatDistanceToNow } from "date-fns";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { createNote, updateNote, deleteNote } from "./actions";
 import type { Note } from "@/types";
 import { useLanguage } from "@/components/providers/language-provider";
+import { getDateFnsLocale } from "@/lib/i18n/date-locale";
 
 function NoteCard({ note }: { note: Note }) {
   const [isEditing, setIsEditing] = useState(false);
@@ -22,7 +23,7 @@ function NoteCard({ note }: { note: Note }) {
   const [tagsStr, setTagsStr] = useState(note.tags.join(", "));
   const [isPending, startTransition] = useTransition();
   const [isDeleting, startDelete] = useTransition();
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   function handleSave() {
     const tags = tagsStr.split(",").map((tg) => tg.trim()).filter(Boolean);
@@ -49,7 +50,14 @@ function NoteCard({ note }: { note: Note }) {
       <CardHeader className="pb-2 flex-row items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-foreground truncate">{note.title}</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">{format(new Date(note.updated_at), "d MMM yyyy")}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {formatDistanceToNow(new Date(note.updated_at), {
+              addSuffix: true,
+              locale: getDateFnsLocale(locale),
+            })}
+            {" · "}
+            {format(new Date(note.updated_at), "d MMM yyyy", { locale: getDateFnsLocale(locale) })}
+          </p>
         </div>
         <div className="flex gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
           <Dialog open={isEditing} onOpenChange={setIsEditing}>
@@ -116,7 +124,7 @@ function NewNoteDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button className="bg-rose-500 hover:bg-rose-600 text-white gap-2" />}>
+      <DialogTrigger render={<Button id="new-note-trigger" className="bg-rose-500 hover:bg-rose-600 text-white gap-2" />}>
         <Plus className="w-4 h-4" />{t.notes.newNote}
       </DialogTrigger>
       <DialogContent className="max-w-lg">
@@ -158,7 +166,7 @@ export function NotesGrid({ notes }: { notes: Note[] }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3 flex-wrap">
+      <div id="notes-toolbar" className="flex items-center gap-3 flex-wrap scroll-mt-24">
         <div className="relative flex-1 min-w-48">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder={t.notes.searchPlaceholder} value={search} onChange={(e) => setSearch(e.target.value)} className="pl-9" />
@@ -181,9 +189,18 @@ export function NotesGrid({ notes }: { notes: Note[] }) {
       )}
 
       {filtered.length === 0 ? (
-        <div className="text-center py-20 text-muted-foreground">
+        <div className="text-center py-20 text-muted-foreground space-y-4">
           <FileText className="w-12 h-12 mx-auto mb-4 opacity-20" />
           <p>{search || filterTag ? t.notes.noMatch : t.notes.empty}</p>
+          {!search && !filterTag && notes.length === 0 && (
+            <Button
+              type="button"
+              className="bg-rose-500 hover:bg-rose-600 text-white"
+              onClick={() => document.getElementById("new-note-trigger")?.click()}
+            >
+              {t.notes.addFirstCta}
+            </Button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
