@@ -1,0 +1,29 @@
+# Daily ping to /api/cron/bill-reminders (no Vercel Cron required).
+#
+# GitHub → repo → Settings → Secrets and variables → Actions → New repository secret:
+#   CRON_SECRET     same string as in Vercel / .env.local
+#   APP_BASE_URL    e.g. https://your-app.vercel.app  (no trailing slash)
+#
+# Manual test: Actions tab → "Bill reminders" → Run workflow.
+
+name: Bill reminders
+
+on:
+  schedule:
+    # 08:15 UTC daily (pick any minute to avoid exact-hour spikes)
+    - cron: "15 8 * * *"
+  workflow_dispatch:
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Hit bill-reminders API
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          APP_BASE_URL: ${{ secrets.APP_BASE_URL }}
+        run: |
+          test -n "$CRON_SECRET" && test -n "$APP_BASE_URL" || { echo "Set CRON_SECRET and APP_BASE_URL in repo Actions secrets"; exit 1; }
+          curl -sS -f \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            "${APP_BASE_URL}/api/cron/bill-reminders"

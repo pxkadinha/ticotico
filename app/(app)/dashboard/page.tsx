@@ -183,8 +183,8 @@ export default async function DashboardPage() {
         </Card>
       )}
 
-      {/* Top stats row — hidden per module */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      {/* Top stats row — hidden per module (no duplicate upcoming count; see grid “Próximos”) */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {enabledModules.expenses && (
           <>
             <StatCard
@@ -213,16 +213,6 @@ export default async function DashboardPage() {
             iconClass="text-blue-500"
             bgClass="bg-blue-500/10"
             href="/tasks"
-          />
-        )}
-        {enabledModules.calendar && (
-          <StatCard
-            title={t.dashboard.upcomingEvents}
-            value={String(data.appointments.length)}
-            icon={CalendarDays}
-            iconClass="text-purple-500"
-            bgClass="bg-purple-500/10"
-            href="/calendar"
           />
         )}
       </div>

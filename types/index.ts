@@ -47,6 +47,25 @@ export type ExpenseCategory =
   | "entertainment"
   | "other";
 
+export type RecurringCadence = "weekly" | "monthly" | "yearly";
+
+export interface RecurringBill {
+  id: string;
+  family_id: string;
+  created_by: string;
+  title: string;
+  amount: number;
+  category: ExpenseCategory;
+  cadence: RecurringCadence;
+  next_due_date: string;
+  reminder_days_before: number;
+  is_active: boolean;
+  reminder_sent_for_due: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Expense {
   id: string;
   family_id: string;

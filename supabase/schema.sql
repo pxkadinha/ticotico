@@ -49,6 +49,25 @@ create table if not exists expenses (
   created_at timestamptz default now()
 );
 
+-- Recurring bills (under Expenses in the app). Reminder pushes sent via /api/cron/bill-reminders.
+-- Existing DB: run the CREATE TABLE + policies + trigger below in SQL Editor if not present.
+create table if not exists recurring_bills (
+  id uuid primary key default gen_random_uuid(),
+  family_id uuid not null references families(id) on delete cascade,
+  created_by uuid not null references auth.users(id),
+  title text not null,
+  amount decimal(10,2) not null,
+  category text not null check (category in ('food','health','home','baby','transport','entertainment','other')),
+  cadence text not null check (cadence in ('weekly','monthly','yearly')),
+  next_due_date date not null,
+  reminder_days_before int not null default 1 check (reminder_days_before >= 0 and reminder_days_before <= 30),
+  is_active boolean not null default true,
+  reminder_sent_for_due date,
+  notes text,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
 create table if not exists tasks (
   id uuid primary key default gen_random_uuid(),
   family_id uuid references families(id) on delete cascade not null,
@@ -133,6 +152,10 @@ create trigger notes_updated_at
   before update on notes
   for each row execute function update_updated_at();
 
+create trigger recurring_bills_updated_at
+  before update on recurring_bills
+  for each row execute function update_updated_at();
+
 -- ─────────────────────────────────────────
 -- ROW-LEVEL SECURITY
 -- ─────────────────────────────────────────
@@ -140,6 +163,7 @@ create trigger notes_updated_at
 alter table families        enable row level security;
 alter table family_members  enable row level security;
 alter table expenses        enable row level security;
+alter table recurring_bills enable row level security;
 alter table tasks           enable row level security;
 alter table appointments    enable row level security;
 alter table baby_logs       enable row level security;
@@ -211,6 +235,31 @@ create policy "Expense owners can update" on expenses
 
 create policy "Expense owners can delete" on expenses
   for delete using (user_id = auth.uid());
+
+-- ─────────────────────────────────────────
+-- RECURRING_BILLS POLICIES (collaborative: any family member)
+-- ─────────────────────────────────────────
+
+create policy "Family members can view recurring bills" on recurring_bills
+  for select using (
+    exists (select 1 from family_members where family_id = recurring_bills.family_id and user_id = auth.uid())
+  );
+
+create policy "Family members can insert recurring bills" on recurring_bills
+  for insert with check (
+    exists (select 1 from family_members where family_id = recurring_bills.family_id and user_id = auth.uid())
+    and created_by = auth.uid()
+  );
+
+create policy "Family members can update recurring bills" on recurring_bills
+  for update using (
+    exists (select 1 from family_members where family_id = recurring_bills.family_id and user_id = auth.uid())
+  );
+
+create policy "Family members can delete recurring bills" on recurring_bills
+  for delete using (
+    exists (select 1 from family_members where family_id = recurring_bills.family_id and user_id = auth.uid())
+  );
 
 -- ─────────────────────────────────────────
 -- TASKS POLICIES

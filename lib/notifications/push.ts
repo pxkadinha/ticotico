@@ -1,5 +1,6 @@
 import webpush from "web-push";
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/admin";
 
 webpush.setVapidDetails(
   process.env.VAPID_SUBJECT!,
@@ -38,6 +39,41 @@ export async function notifyFamily({
       .select("subscription")
       .eq("family_id", familyId)
       .neq("user_id", senderUserId);
+
+    if (!subs?.length) return;
+
+    const body = JSON.stringify(payload);
+
+    await Promise.allSettled(
+      subs.map((row) =>
+        webpush.sendNotification(
+          row.subscription as webpush.PushSubscription,
+          body
+        )
+      )
+    );
+  } catch {
+    // Best-effort — never throw
+  }
+}
+
+/**
+ * Send a web push to every subscription in the family (including the actor).
+ * For trusted server paths only (e.g. cron reminders).
+ */
+export async function notifyFamilyBroadcast({
+  familyId,
+  payload,
+}: {
+  familyId: string;
+  payload: PushPayload;
+}): Promise<void> {
+  try {
+    const supabase = createServiceClient();
+    const { data: subs } = await supabase
+      .from("push_subscriptions")
+      .select("subscription")
+      .eq("family_id", familyId);
 
     if (!subs?.length) return;
 

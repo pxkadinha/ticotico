@@ -103,7 +103,7 @@ export function DashboardChatWidget({
 
       <CardContent className="space-y-3">
         {/* Messages area */}
-        <div className="h-48 overflow-y-auto space-y-1 pr-1">
+        <div className="h-48 overflow-y-auto space-y-1 px-2 sm:px-1">
           {messages.length === 0 ? (
             <div className="flex items-center justify-center h-full">
               <p className="text-sm text-muted-foreground">{t.chat.noMessages}</p>
@@ -116,7 +116,7 @@ export function DashboardChatWidget({
               if (msg.type === "activity") {
                 return (
                   <div key={msg.id} className="flex justify-center my-0.5">
-                    <div className="flex items-center gap-1.5 bg-muted/50 rounded-full px-2.5 py-0.5 text-xs text-muted-foreground max-w-[95%]">
+                    <div className="flex items-center gap-1.5 bg-muted/50 rounded-full px-2.5 py-0.5 text-xs text-muted-foreground max-w-[min(75%,18rem)]">
                       {msg.metadata?.icon && (
                         <span className="leading-none">{msg.metadata.icon}</span>
                       )}
@@ -132,7 +132,7 @@ export function DashboardChatWidget({
               return (
                 <div
                   key={msg.id}
-                  className={`flex ${isMe ? "justify-end" : "justify-start"}`}
+                  className={`flex ${isMe ? "justify-end" : "justify-start"} px-0.5`}
                 >
                   <div className={`max-w-[75%] flex flex-col ${isMe ? "items-end" : "items-start"}`}>
                     {!isMe && (

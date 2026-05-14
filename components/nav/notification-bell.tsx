@@ -73,11 +73,12 @@ export function NotificationBell({ familyId, userId }: NotificationBellProps) {
 
   const computeUnread = useCallback(
     (msgs: Message[]) => {
+      const fromOthers = msgs.filter((m) => m.user_id !== userId);
       const ls = localStorage.getItem(lastSeenKey);
-      if (!ls) return msgs.length;
-      return msgs.filter((m) => new Date(m.created_at) > new Date(ls)).length;
+      if (!ls) return fromOthers.length;
+      return fromOthers.filter((m) => new Date(m.created_at) > new Date(ls)).length;
     },
-    [lastSeenKey]
+    [lastSeenKey, userId]
   );
 
   // Bootstrap browser-only values after mount
@@ -153,7 +154,7 @@ export function NotificationBell({ familyId, userId }: NotificationBellProps) {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [familyId, userId, computeUnread]);
+  }, [familyId, userId, computeUnread, lastSeenKey]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -245,8 +246,16 @@ export function NotificationBell({ familyId, userId }: NotificationBellProps) {
               <p className="text-sm text-muted-foreground text-center py-8">
                 {t.chat.noMessages}
               </p>
+            ) : messages.every(
+                (m) => m.type === "activity" && m.user_id === userId
+              ) ? (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                {t.chat.noMessages}
+              </p>
             ) : (
-              messages.map((msg) => {
+              messages
+                .filter((msg) => !(msg.type === "activity" && msg.user_id === userId))
+                .map((msg) => {
                 const isActivity = msg.type === "activity";
                 const isOwn = msg.user_id === userId;
                 const name = msg.metadata?.display_name ?? "?";

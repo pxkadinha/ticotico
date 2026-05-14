@@ -96,7 +96,7 @@ export function ChatClient({ initialMessages, familyId, currentUserId }: ChatCli
   return (
     <div className="flex flex-col min-h-[calc(100dvh-10rem)] md:min-h-[calc(100dvh-6rem)]">
       {/* Messages */}
-      <div className="flex-1 space-y-1 pb-4">
+      <div className="flex-1 space-y-1 pb-4 px-2 sm:px-3">
         {messages.length === 0 && (
           <div className="flex items-center justify-center h-48">
             <p className="text-muted-foreground text-sm">{t.chat.noMessages}</p>
@@ -121,8 +121,8 @@ export function ChatClient({ initialMessages, familyId, currentUserId }: ChatCli
                     <div className="flex-1 h-px bg-border" />
                   </div>
                 )}
-                <div className="flex justify-center my-1">
-                  <div className="flex items-center gap-1.5 bg-muted/50 rounded-full px-3 py-1 text-xs text-muted-foreground max-w-[90%]">
+                <div className="flex justify-center my-1 px-0.5">
+                  <div className="flex items-center gap-1.5 bg-muted/50 rounded-full px-3 py-1 text-xs text-muted-foreground max-w-[min(75%,20rem)]">
                     {msg.metadata?.icon && (
                       <span className="text-sm leading-none">{msg.metadata.icon}</span>
                     )}
@@ -152,7 +152,7 @@ export function ChatClient({ initialMessages, familyId, currentUserId }: ChatCli
                   <div className="flex-1 h-px bg-border" />
                 </div>
               )}
-              <div className={`flex ${isMe ? "justify-end" : "justify-start"} px-1 mb-0.5`}>
+              <div className={`flex ${isMe ? "justify-end" : "justify-start"} px-0.5 sm:px-1 mb-0.5`}>
                 <div className={`max-w-[75%] ${isMe ? "items-end" : "items-start"} flex flex-col`}>
                   {showName && (
                     <span className="text-xs text-muted-foreground px-1 mb-0.5">
